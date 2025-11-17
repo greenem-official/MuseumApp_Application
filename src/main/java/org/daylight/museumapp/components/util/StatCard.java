@@ -1,4 +1,4 @@
-package org.daylight.museumapp.museumapp;
+package org.daylight.museumapp.components.util;
 
 public class StatCard {
     private final String title;

@@ -1,17 +1,23 @@
 package org.daylight.museumapp;
 
+import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import org.daylight.museumapp.museumapp.StatCard;
-import org.daylight.museumapp.museumapp.Icons;
+import javafx.util.Duration;
+import org.daylight.museumapp.components.util.Icons;
+import org.daylight.museumapp.components.util.NavigationItem;
+import org.daylight.museumapp.components.util.StatCard;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,36 +26,245 @@ import java.util.logging.Logger;
 public class MuseumApp extends Application {
     public static final Logger LOGGER = Logger.getLogger(MuseumApp.class.getName());
 
+    private BorderPane root;
+    private StackPane contentArea;
+    private VBox sidebar;
+
     @Override
     public void start(Stage primaryStage) {
-        Scene scene = new Scene(createRoot(), 1200, 800);
-        String cssPath = getClass().getResource("/styles/museum-light.css").toExternalForm();
-        System.out.println("CSS path: " + cssPath); // для отладки
-        scene.getStylesheets().add(cssPath);
+        root = new BorderPane();
+        Scene scene = new Scene(root, 1400, 900);
+
+        // Загрузка CSS
+        try {
+            String cssPath = getClass().getResource("/styles/museum-light.css").toExternalForm();
+            scene.getStylesheets().add(cssPath);
+        } catch (Exception e) {
+            System.err.println("CSS not found, using default styles");
+        }
+
+        initializeLayout();
+        showHomePage(); // Показываем главную страницу по умолчанию
+
         primaryStage.setScene(scene);
         primaryStage.setTitle("Информационная система музея");
         primaryStage.show();
     }
 
-    private BorderPane createRoot() {
-        BorderPane root = new BorderPane();
-        root.setCenter(createContent());
-        return root;
+    private void initializeLayout() {
+        // Создаем сайдбар
+        sidebar = createSidebar();
+        root.setLeft(sidebar);
+
+        // Область для контента
+        contentArea = new StackPane();
+        contentArea.getStyleClass().add("content-area");
+        root.setCenter(contentArea);
     }
 
+    private VBox createSidebar() {
+        VBox sidebar = new VBox();
+        sidebar.getStyleClass().add("sidebar");
+        sidebar.setPrefWidth(280);
+        sidebar.setMinWidth(280);
+
+        // Заголовок с иконкой музея
+        HBox titleBox = new HBox(12);
+        titleBox.setAlignment(Pos.CENTER_LEFT);
+        titleBox.setPadding(new Insets(0, 24, 24, 24));
+
+        Label icon = new Label(Icons.MUSEUM);
+        icon.setStyle("-fx-font-size: 24px;");
+
+        Label title = new Label("Музей Искусств");
+        title.getStyleClass().add("sidebar-title");
+
+        titleBox.getChildren().addAll(icon, title);
+
+        // Меню навигации
+        VBox navMenu = createNavigationMenu();
+
+        // Spacer чтобы прижать меню к верху
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        sidebar.getChildren().addAll(titleBox, navMenu, spacer, createFooter());
+        return sidebar;
+    }
+
+    private VBox createNavigationMenu() {
+        VBox menu = new VBox(4);
+        menu.getStyleClass().add("sidebar-menu");
+        menu.setPadding(new Insets(0, 12, 20, 12));
+
+        NavigationItem[] navItems = {
+                new NavigationItem("Главная", "/", Icons.HOME),
+                new NavigationItem("Экспонаты", "/exhibits", Icons.EXHIBITS),
+                new NavigationItem("Коллекции", "/collections", Icons.COLLECTIONS),
+                new NavigationItem("Залы", "/halls", Icons.HALLS),
+                new NavigationItem("Авторы", "/authors", Icons.AUTHORS)
+        };
+
+        for (NavigationItem item : navItems) {
+            menu.getChildren().add(createNavButton(item));
+        }
+
+        return menu;
+    }
+
+    private HBox createFooter() {
+        HBox footer = new HBox();
+        footer.setPadding(new Insets(16, 20, 20, 20));
+        footer.setAlignment(Pos.CENTER);
+
+        Label version = new Label("v1.0.0");
+        version.setStyle("-fx-text-fill: #8a7a6d; -fx-font-size: 12px;");
+
+        footer.getChildren().add(version);
+        return footer;
+    }
+
+    private Button createNavButton(NavigationItem item) {
+        Button button = new Button();
+
+        // Создаем HBox для содержимого
+        HBox content = new HBox(12);
+        content.setAlignment(Pos.CENTER_LEFT);
+
+        // Иконка
+        Label iconLabel = new Label(item.icon());
+        iconLabel.getStyleClass().add("icon-label");
+
+        // Текст
+        Label textLabel = new Label(item.title());
+        textLabel.setStyle("-fx-text-fill: inherit;");
+
+        content.getChildren().addAll(iconLabel, textLabel);
+        button.setGraphic(content);
+
+        button.getStyleClass().add("nav-button");
+        button.setMaxWidth(Double.MAX_VALUE);
+        button.setAlignment(Pos.CENTER_LEFT);
+
+        // Обработчик клика
+        button.setOnAction(e -> navigateTo(item.path()));
+
+        return button;
+    }
+
+    private void navigateTo(String path) {
+        // Плавное исчезновение текущего контента
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(150), contentArea);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.3);
+
+        fadeOut.setOnFinished(e -> {
+            // Обновляем активные кнопки
+            updateActiveNavButton(path);
+
+            // Загружаем новый контент
+            loadContentForPath(path);
+
+            // Плавное появление нового контента
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(200), contentArea);
+            fadeIn.setFromValue(0.3);
+            fadeIn.setToValue(1.0);
+            fadeIn.play();
+        });
+
+        fadeOut.play();
+    }
+
+    private void loadContentForPath(String path) {
+        switch (path) {
+            case "/" -> showHomePage();
+            case "/exhibits" -> showExhibitsPage();
+            case "/collections" -> showCollectionsPage();
+            case "/halls" -> showHallsPage();
+            case "/authors" -> showAuthorsPage();
+            default -> showHomePage();
+        }
+    }
+
+    private void updateActiveNavButton(String path) {
+        // Сбрасываем все кнопки
+        for (Node node : ((VBox) sidebar.getChildren().get(1)).getChildren()) {
+            if (node instanceof Button) {
+                node.getStyleClass().remove("nav-button-active");
+            }
+        }
+
+        // Активируем текущую кнопку
+        String targetTitle = getTitleByPath(path);
+        for (Node node : ((VBox) sidebar.getChildren().get(1)).getChildren()) {
+            if (node instanceof Button btn) {
+                HBox graphic = (HBox) btn.getGraphic();
+                if (graphic.getChildren().size() > 1) {
+                    Label textLabel = (Label) graphic.getChildren().get(1);
+                    if (textLabel.getText().equals(targetTitle)) {
+                        btn.getStyleClass().add("nav-button-active");
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private String getTitleByPath(String path) {
+        return switch (path) {
+            case "/" -> "Главная";
+            case "/exhibits" -> "Экспонаты";
+            case "/collections" -> "Коллекции";
+            case "/halls" -> "Залы";
+            case "/authors" -> "Авторы";
+            default -> "Главная";
+        };
+    }
+
+    private void showHomePage() {
+        ScrollPane homeContent = createContent(); // Ваш существующий метод
+        contentArea.getChildren().setAll(homeContent);
+    }
+
+    private void showExhibitsPage() {
+        VBox content = new VBox(16);
+        content.setPadding(new Insets(24));
+        content.getChildren().add(new Label("Страница экспонатов"));
+        contentArea.getChildren().setAll(content);
+    }
+
+    private void showCollectionsPage() {
+        VBox content = new VBox(16);
+        content.setPadding(new Insets(24));
+        content.getChildren().add(new Label("Страница коллекций"));
+        contentArea.getChildren().setAll(content);
+    }
+
+    private void showHallsPage() {
+        VBox content = new VBox(16);
+        content.setPadding(new Insets(24));
+        content.getChildren().add(new Label("Страница залов"));
+        contentArea.getChildren().setAll(content);
+    }
+
+    private void showAuthorsPage() {
+        VBox content = new VBox(16);
+        content.setPadding(new Insets(24));
+        content.getChildren().add(new Label("Страница авторов"));
+        contentArea.getChildren().setAll(content);
+    }
+
+    // Ваш существующий метод createContent() остается без изменений
     private ScrollPane createContent() {
         VBox content = new VBox(32);
         content.setPadding(new Insets(24));
         content.getStyleClass().add("container");
 
-        // Заголовок
-        content.getChildren().add(createHeader());
-
-        // Карточки статистики
-        content.getChildren().add(createStatsGrid());
-
-        // Нижние карточки
-        content.getChildren().add(createBottomCards());
+        content.getChildren().addAll(
+                createHeader(),
+                createStatsGrid(),
+                createBottomCards()
+        );
 
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
@@ -108,7 +323,8 @@ public class MuseumApp extends Application {
 
         Label icon = new Label(stat.icon());
         icon.getStyleClass().add("stat-icon");
-        icon.setFont(Font.font("FontAwesome", 20));
+//        icon.setFont(Font.font("FontAwesome", 20));
+        icon.setStyle("-fx-font-size: 20px;");
 
         Label title = new Label(stat.title());
         title.getStyleClass().add("card-title");
@@ -190,9 +406,5 @@ public class MuseumApp extends Application {
 
         card.getChildren().addAll(header, content);
         return card;
-    }
-
-    private void navigateTo(String link) {
-        System.out.println("Navigating to: " + link);
     }
 }
