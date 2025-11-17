@@ -37,11 +37,11 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);
 }
 
-.card:hover {
+/*.card:hover {
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 4);
     -fx-scale-x: 1.02;
     -fx-scale-y: 1.02;
-}
+}*/
 
 .stat-card {
     -fx-cursor: hand;
@@ -112,6 +112,8 @@
     -fx-font-size: 20px;
     -fx-padding: 0 24px 20px 24px;
     -fx-alignment: center-left;
+    -fx-wrap-text: false; /* ← ОТКЛЮЧАЕМ перенос */
+    -fx-text-overrun: clip;
 }
 
 .sidebar-menu {
@@ -134,6 +136,8 @@
     -fx-border-width: 1px;
     -fx-effect: none;
     -fx-transition: all 0.2s ease;
+    -fx-pref-height: 44px; /* Фиксированная высота */
+    -fx-max-height: 44px; /* Фиксированная высота */
 }
 
 .nav-button:hover {
@@ -150,33 +154,34 @@
     -fx-effect: dropshadow(gaussian, rgba(179, 89, 45, 0.1), 8, 0, 0, 2);
 }
 
-.nav-button .ikonli-font-icon {
-    -fx-icon-color: #8a7a6d; /* --muted-foreground */
-    -fx-icon-size: 20px;
-}
-
-.nav-button:hover .ikonli-font-icon {
-    -fx-icon-color: #382a20;
-}
-
-.nav-button-active .ikonli-font-icon {
-    -fx-icon-color: #b3592d !important; /* --sidebar-primary */
-}
-
-/* Анимация для плавных переходов */
-.sidebar * {
-    -fx-transition: all 0.3s ease;
+/* Фиксы для текста в кнопках */
+.nav-button .label {
+    -fx-text-overrun: clip;
+    -fx-wrap-text: true;
 }
 
 /* Стиль для иконок в кнопках */
 .icon-label {
     -fx-font-size: 18px;
     -fx-min-width: 24px;
+    -fx-pref-width: 24px;
     -fx-alignment: center;
+    -fx-text-overrun: clip;
 }
 
 .nav-button-active .icon-label {
     -fx-font-weight: bold;
+}
+
+/* Базовые настройки шрифта */
+.root {
+    -fx-font-family: "System", "Segoe UI", "Arial";
+    -fx-font-smoothing-type: gray;
+}
+
+/* Специально для эмодзи и символов */
+.icon-label {
+    -fx-font-family: "System", "Segoe UI Emoji", "Apple Color Emoji";
 }
 
 /* Sidebar **/

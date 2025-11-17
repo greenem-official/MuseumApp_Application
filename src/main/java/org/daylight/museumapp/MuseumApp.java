@@ -1,6 +1,7 @@
 package org.daylight.museumapp;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -11,7 +12,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -73,13 +76,16 @@ public class MuseumApp extends Application {
         titleBox.setAlignment(Pos.CENTER_LEFT);
         titleBox.setPadding(new Insets(0, 24, 24, 24));
 
-        Label icon = new Label(Icons.MUSEUM);
-        icon.setStyle("-fx-font-size: 24px;");
+//        Label icon = new Label(Icons.MUSEUM);
+//        icon.setStyle("-fx-font-size: 24px;");
 
         Label title = new Label("Музей Искусств");
         title.getStyleClass().add("sidebar-title");
+        title.setMaxWidth(Double.MAX_VALUE); // Важно!
+        title.setWrapText(false); // Разрешаем перенос текста
 
-        titleBox.getChildren().addAll(icon, title);
+        titleBox.getChildren().addAll(title); // icon,
+        HBox.setHgrow(title, Priority.ALWAYS); // Разрешаем растягивание
 
         // Меню навигации
         VBox navMenu = createNavigationMenu();
@@ -130,14 +136,19 @@ public class MuseumApp extends Application {
         // Создаем HBox для содержимого
         HBox content = new HBox(12);
         content.setAlignment(Pos.CENTER_LEFT);
+        content.setMaxWidth(Double.MAX_VALUE);
 
         // Иконка
         Label iconLabel = new Label(item.icon());
         iconLabel.getStyleClass().add("icon-label");
+        iconLabel.setMinWidth(24);
+        iconLabel.setPrefWidth(24);
 
         // Текст
         Label textLabel = new Label(item.title());
-        textLabel.setStyle("-fx-text-fill: inherit;");
+        textLabel.setStyle("-fx-text-fill: inherit; -fx-wrap-text: true;");
+        textLabel.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(textLabel, Priority.ALWAYS); // Текст занимает всё доступное пространство
 
         content.getChildren().addAll(iconLabel, textLabel);
         button.setGraphic(content);
@@ -311,6 +322,11 @@ public class MuseumApp extends Application {
     private StackPane createStatCard(StatCard stat) {
         VBox card = new VBox();
         card.getStyleClass().addAll("card", "stat-card");
+
+        // Настройка анимации
+        setupCardAnimations(card);
+
+        // Остальной код создания карточки...
         card.setOnMouseClicked(e -> navigateTo(stat.link()));
 
         // Header с иконкой
@@ -323,8 +339,6 @@ public class MuseumApp extends Application {
 
         Label icon = new Label(stat.icon());
         icon.getStyleClass().add("stat-icon");
-//        icon.setFont(Font.font("FontAwesome", 20));
-        icon.setStyle("-fx-font-size: 20px;");
 
         Label title = new Label(stat.title());
         title.getStyleClass().add("card-title");
@@ -406,5 +420,35 @@ public class MuseumApp extends Application {
 
         card.getChildren().addAll(header, content);
         return card;
+    }
+
+    // Java animations
+
+    private void setupCardAnimations(Node card) {
+        // Сохраняем оригинальный масштаб
+        card.setScaleX(1.0);
+        card.setScaleY(1.0);
+
+        // Анимация при наведении
+        card.setOnMouseEntered(e -> {
+            ScaleTransition scaleUp = new ScaleTransition(Duration.millis(200), card);
+            scaleUp.setToX(1.02);
+            scaleUp.setToY(1.02);
+            scaleUp.play();
+
+            // Также анимируем тень
+            card.setEffect(new DropShadow(15, Color.rgb(0, 0, 0, 0.15)));
+        });
+
+        // Анимация при уходе мыши
+        card.setOnMouseExited(e -> {
+            ScaleTransition scaleDown = new ScaleTransition(Duration.millis(200), card);
+            scaleDown.setToX(1.0);
+            scaleDown.setToY(1.0);
+            scaleDown.play();
+
+            // Возвращаем оригинальную тень
+            card.setEffect(new DropShadow(10, Color.rgb(0, 0, 0, 0.08)));
+        });
     }
 }
