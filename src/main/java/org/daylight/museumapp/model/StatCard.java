@@ -1,4 +1,4 @@
-package org.daylight.museumapp.components.util;
+package org.daylight.museumapp.model;
 
 public class StatCard {
     private final String title;
@@ -13,8 +13,19 @@ public class StatCard {
         this.icon = icon;
     }
 
-    public String title() { return title; }
-    public String count() { return count; }
-    public String link() { return link; }
-    public String icon() { return icon; }
+    public String getTitle() {
+        return title;
+    }
+
+    public String getCount() {
+        return count;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
 }

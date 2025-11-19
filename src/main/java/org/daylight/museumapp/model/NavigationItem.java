@@ -1,4 +1,4 @@
-package org.daylight.museumapp.components.util;
+package org.daylight.museumapp.model;
 
 public class NavigationItem {
     private final String title;

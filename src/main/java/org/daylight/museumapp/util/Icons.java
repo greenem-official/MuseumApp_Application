@@ -1,11 +1,11 @@
-package org.daylight.museumapp.components.util;
+package org.daylight.museumapp.util;
 
 public class Icons {
     public static final String HOME = "🏠";
     public static final String EXHIBITS = "🖼";
     public static final String COLLECTIONS = "📚";
     public static final String HALLS = "🏛";
-    public static final String AUTHORS = "👨‍🎨";
+    public static final String AUTHORS = "✍";
     public static final String EXTERNAL_LINK = "↗";
     public static final String FOLDER_OPEN = "📂";
     public static final String DOOR_OPEN = "🚪";
