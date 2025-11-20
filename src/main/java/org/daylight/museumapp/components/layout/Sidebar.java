@@ -2,16 +2,22 @@ package org.daylight.museumapp.components.layout;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
+import org.daylight.museumapp.components.common.GlobalHooks;
 import org.daylight.museumapp.model.NavigationItem;
+import org.daylight.museumapp.services.AuthService;
 import org.daylight.museumapp.services.NavigationService;
 import org.daylight.museumapp.util.Icons;
+
+import java.util.function.Consumer;
 
 public class Sidebar {
     private VBox sidebar;
     private VBox navigationMenu;
+    private VBox bottomSidebarMenu;
     private NavigationService navigationService;
 
     public Sidebar() {
@@ -35,7 +41,9 @@ public class Sidebar {
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        sidebar.getChildren().addAll(titleBox, navigationMenu, spacer, createFooter());
+        bottomSidebarMenu = createBottomNavigationMenu();
+
+        sidebar.getChildren().addAll(titleBox, navigationMenu, spacer, bottomSidebarMenu);
     }
 
     private HBox createTitleBox() {
@@ -64,11 +72,11 @@ public class Sidebar {
                 new NavigationItem("Экспонаты", "/exhibits", Icons.EXHIBITS),
                 new NavigationItem("Коллекции", "/collections", Icons.COLLECTIONS),
                 new NavigationItem("Залы", "/halls", Icons.HALLS),
-                new NavigationItem("Авторы", "/authors", Icons.AUTHORS)
+                new NavigationItem("Авторы", "/authors", Icons.AUTHORS),
         };
 
         for (NavigationItem item : navItems) {
-            Button navButton = createNavButton(item);
+            Button navButton = createNavButton(item, null);
             menu.getChildren().add(navButton);
 
             // Устанавливаем активный класс для главной страницы по умолчанию
@@ -80,7 +88,28 @@ public class Sidebar {
         return menu;
     }
 
-    private Button createNavButton(NavigationItem item) {
+    private VBox createBottomNavigationMenu() {
+        VBox menu = new VBox(4);
+        menu.getStyleClass().add("sidebar-menu");
+        menu.setPadding(new Insets(0, 12, 20, 12));
+
+        NavigationItem[] navItems = {
+                new NavigationItem("Аккаунт", "/account", Icons.USERS)
+        };
+
+        for (NavigationItem item : navItems) {
+            Button navButton = createNavButton(item, item.path().equals("/account") ? label -> GlobalHooks.getInstance().setSidebarAccountButtonChangeHook(() -> {
+                label.setText(AuthService.getInstance().isAuthenticated() ? AuthService.getInstance().getCurrentUser().getUsername() : "Нет Аккаунта");
+            }) : null);
+            menu.getChildren().add(navButton);
+        }
+
+        GlobalHooks.getInstance().getSidebarAccountButtonChangeHook().run();
+
+        return menu;
+    }
+
+    private Button createNavButton(NavigationItem item, Consumer<Label> forLabelChange) {
         Button button = new Button();
 
         HBox content = new HBox(12);
@@ -101,24 +130,17 @@ public class Sidebar {
         button.setMaxWidth(Double.MAX_VALUE);
         button.setAlignment(Pos.CENTER_LEFT);
 
+        // Сохраняем путь в userData для идентификации кнопки
+        button.setUserData(item.path());
+
         button.setOnAction(e -> {
-            System.out.println("Button clicked: " + item.title());
+            System.out.println("Button clicked: " + item.title() + " -> " + item.path());
             navigationService.navigateTo(item.path());
         });
 
+        if(forLabelChange != null) forLabelChange.accept(textLabel);
+
         return button;
-    }
-
-    private HBox createFooter() {
-        HBox footer = new HBox();
-        footer.setPadding(new Insets(16, 20, 20, 20));
-        footer.setAlignment(Pos.CENTER);
-
-        Label version = new Label("v1.0.0");
-        version.setStyle("-fx-text-fill: #8a7a6d; -fx-font-size: 12px;");
-
-        footer.getChildren().add(version);
-        return footer;
     }
 
     public VBox getContent() {
@@ -127,5 +149,9 @@ public class Sidebar {
 
     public VBox getNavigationMenu() {
         return navigationMenu;
+    }
+
+    public VBox getBottomNavigationMenu() {
+        return bottomSidebarMenu;
     }
 }

@@ -33,6 +33,7 @@ public class AppLayout {
 
         // Устанавливаем меню сайдбара в сервис навигации
         navigationService.setSidebarMenu(sidebar.getNavigationMenu());
+        navigationService.setBottomSidebarMenu(sidebar.getBottomNavigationMenu());
 
         // Показываем главную страницу по умолчанию
         showHomePage();

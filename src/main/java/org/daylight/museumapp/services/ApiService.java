@@ -1,8 +1,12 @@
 package org.daylight.museumapp.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
+import org.daylight.museumapp.dto.LoginRequestData;
+import org.daylight.museumapp.dto.RegisterRequestData;
+import org.daylight.museumapp.dto.UserData;
 import org.daylight.museumapp.model.StatCard;
 import org.daylight.museumapp.util.Icons;
 
@@ -18,6 +22,7 @@ import java.util.List;
 public class ApiService {
     private static ApiService instance;
     private final HttpClient httpClient;
+    private final ObjectMapper mapper;
     private final Gson gson;
     private final String baseUrl = "http://localhost:8042"; // Замените на ваш URL
 
@@ -26,6 +31,7 @@ public class ApiService {
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
         this.gson = new Gson();
+        this.mapper = new ObjectMapper();
     }
 
     public static ApiService getInstance() {
@@ -89,5 +95,50 @@ public class ApiService {
                 new StatCard("Залы", "-", "/halls", Icons.DOOR_OPEN),
                 new StatCard("Авторы", "-", "/authors", Icons.USERS)
         );
+    }
+
+    public boolean register(String username, String password, String fullName) throws IOException, InterruptedException {
+        String requestBody = mapper.writeValueAsString(new RegisterRequestData(username, password, fullName));
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl + "/auth/register"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return true;
+        } else {
+            System.err.println("API error: " + response.statusCode());
+            return false;
+        }
+    }
+
+    public UserData login(String username, String password) {
+        try {
+            String requestBody = mapper.writeValueAsString(new LoginRequestData(username, password));
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl + "/auth/login"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                UserData user = gson.fromJson(response.body(), UserData.class);
+//                System.out.println(user.toString());
+                return user;
+            } else {
+                System.err.println("API error: " + response.statusCode());
+            }
+
+        } catch (IOException | InterruptedException e) {
+            System.err.println("Failed to fetch stats: " + e.getMessage());
+        }
+        return null;
     }
 }

@@ -26,7 +26,7 @@ public class StatCardComponent {
         card.getStyleClass().addAll("card", "stat-card");
 
         // Настройка анимации
-        CardAnimations.setupCardAnimations(card);
+        CardAnimations.setupCardAnimations(card, true);
 
         // Обработчик клика
         card.setOnMouseClicked(e -> {

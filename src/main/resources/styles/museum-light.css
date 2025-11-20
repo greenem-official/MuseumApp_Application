@@ -184,4 +184,123 @@
     -fx-font-family: "System", "Segoe UI Emoji", "Apple Color Emoji";
 }
 
-/* Sidebar **/
+/* Sidebar */
+
+/* Auth Overlay Styles */
+.auth-overlay {
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+}
+
+.auth-form {
+    -fx-background-color: #fefdfb;
+    -fx-background-radius: 16px;
+    -fx-border-radius: 16px;
+    -fx-border-color: #f5e6d8;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 20, 0, 0, 4);
+    -fx-pref-width: 480px;
+    -fx-max-width: 480px;
+    -fx-padding: 0 30 0 30;
+}
+
+.auth-form .scroll-pane {
+    -fx-fit-to-height: true;
+    -fx-pannable: true;
+}
+
+.auth-title {
+    -fx-text-fill: #382a20;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+.auth-subtitle {
+    -fx-text-fill: #8a7a6d;
+    -fx-font-size: 14px;
+}
+
+/* Табы */
+.auth-tab-active {
+    -fx-background-color: #b3592d;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-border-color: #b3592d;
+    -fx-border-width: 1px;
+    -fx-alignment: center;
+}
+
+.auth-tab-inactive {
+    -fx-background-color: #f5f2ee;
+    -fx-text-fill: #8a7a6d;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-border-color: #f5e6d8;
+    -fx-border-width: 1px;
+    -fx-alignment: center;
+}
+
+.auth-tab-inactive:hover {
+    -fx-background-color: #e8e2d9;
+}
+
+/* Поля формы */
+.auth-field {
+    -fx-background-color: #fcfaf7;
+    -fx-border-color: #f5e6d8;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 12px 16px;
+    -fx-font-size: 14px;
+}
+
+.auth-field:focused {
+    -fx-border-color: #b3592d;
+    -fx-effect: dropshadow(gaussian, rgba(179, 89, 45, 0.1), 8, 0, 0, 2);
+}
+
+/* Кнопки */
+.auth-button {
+    -fx-background-color: #b3592d;
+    -fx-text-fill: #fbf9f7;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-padding: 12px 24px;
+    -fx-cursor: hand;
+}
+
+.auth-button:hover {
+    -fx-background-color: #a04d26;
+    -fx-effect: dropshadow(gaussian, rgba(179, 89, 45, 0.2), 8, 0, 0, 2);
+}
+
+.button {
+    -fx-alignment: center;
+}
+
+/* Ссылки */
+.auth-link {
+    -fx-text-fill: #b3592d;
+    -fx-underline: true;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+
+.auth-link:hover {
+    -fx-text-fill: #a04d26;
+}
+
+/* Ошибки */
+.auth-error {
+    -fx-text-fill: #d32f2f;
+    -fx-font-size: 13px;
+    -fx-background-color: #ffebee;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 12px;
+}
+
+/* End Of Auth Overlay Styles */

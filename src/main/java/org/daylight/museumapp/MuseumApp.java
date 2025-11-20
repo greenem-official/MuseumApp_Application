@@ -1,27 +1,13 @@
 package org.daylight.museumapp;
 
-import javafx.animation.FadeTransition;
-import javafx.animation.ScaleTransition;
 import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.util.Duration;
+import org.daylight.museumapp.components.auth.AuthOverlay;
 import org.daylight.museumapp.components.layout.AppLayout;
-import org.daylight.museumapp.util.Icons;
-import org.daylight.museumapp.model.NavigationItem;
-import org.daylight.museumapp.model.StatCard;
+import org.daylight.museumapp.services.AuthService;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Logger;
 
 public class MuseumApp extends Application {
@@ -30,7 +16,28 @@ public class MuseumApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         AppLayout appLayout = new AppLayout();
-        Scene scene = new Scene(appLayout.getRoot(), 1400, 900);
+
+        // AuthOverlay с обработчиками событий
+        AuthOverlay authOverlay = new AuthOverlay(new AuthOverlay.AuthFormListener() {
+            @Override
+            public void onAuthSuccess() {
+                System.out.println("Authentication successful!");
+                // Обновляем интерфейс после успешной авторизации
+                updateUIAfterAuth();
+            }
+
+            @Override
+            public void onAuthClose() {
+                System.out.println("Auth overlay closed");
+                // Можно добавить логику при закрытии оверлея
+            }
+        });
+
+        // корневой контейнер
+        StackPane rootContainer = new StackPane();
+        rootContainer.getChildren().addAll(appLayout.getRoot(), authOverlay.getOverlay());
+
+        Scene scene = new Scene(rootContainer, 1400, 900);
 
         // Загрузка CSS
         try {
@@ -43,5 +50,14 @@ public class MuseumApp extends Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Информационная система музея");
         primaryStage.show();
+
+        if (!AuthService.getInstance().isAuthenticated()) {
+            authOverlay.show();
+        }
+    }
+
+    private void updateUIAfterAuth() {
+        System.out.println("Updating UI after auth...");
+//        appLayout.updateAuthState();
     }
 }

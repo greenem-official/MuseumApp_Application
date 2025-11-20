@@ -136,7 +136,7 @@ public class HomePage {
         return card;
     }
 
-    private StackPane createStatCard(StatCard stat) {
+    /*private StackPane createStatCard(StatCard stat) {
         VBox card = new VBox();
         card.getStyleClass().addAll("card", "stat-card");
 
@@ -178,7 +178,7 @@ public class HomePage {
         StackPane container = new StackPane(card);
         container.getStyleClass().add("card-container");
         return container;
-    }
+    }*/
 
     private HBox createBottomCards() {
         HBox cardsRow = new HBox(24);
@@ -205,6 +205,9 @@ public class HomePage {
                         "• Добавлены работы 3 новых авторов"
                 )
         );
+
+        CardAnimations.setupCardAnimations(aboutCard, false);
+        CardAnimations.setupCardAnimations(updatesCard, false);
 
         cardsRow.getChildren().addAll(aboutCard, updatesCard);
         return cardsRow;

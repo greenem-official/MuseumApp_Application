@@ -12,6 +12,7 @@ public class NavigationService {
     private static NavigationService instance;
     private StackPane contentArea;
     private VBox sidebarMenu;
+    private VBox bottomSidebarMenu;
 
     private NavigationService() {}
 
@@ -24,12 +25,14 @@ public class NavigationService {
 
     public void setContentArea(StackPane contentArea) {
         this.contentArea = contentArea;
-         System.out.println("Content area set in NavigationService");
     }
 
     public void setSidebarMenu(VBox sidebarMenu) {
         this.sidebarMenu = sidebarMenu;
-        System.out.println("Sidebar menu set in NavigationService");
+    }
+
+    public void setBottomSidebarMenu(VBox bottomSidebarMenu) {
+        this.bottomSidebarMenu = bottomSidebarMenu;
     }
 
     public void navigateTo(String path) {
@@ -65,6 +68,7 @@ public class NavigationService {
             case "/collections" -> new CollectionsPage().getContent();
             case "/halls" -> new HallsPage().getContent();
             case "/authors" -> new AuthorsPage().getContent();
+            case "/account" -> new AccountPage().getContent();
             default -> new HomePage().getContent();
         };
 
@@ -86,17 +90,38 @@ public class NavigationService {
             }
         }
 
-        // Активируем текущую кнопку
-        String targetTitle = getTitleByPath(path);
-        for (Node node : sidebarMenu.getChildren()) {
-            if (node instanceof Button btn) {
-                if (btn.getText() != null && btn.getText().equals(targetTitle)) {
-                    btn.getStyleClass().add("nav-button-active");
-                    System.out.println("Activated button: " + targetTitle);
-                    break;
-                }
+        for (Node node : bottomSidebarMenu.getChildren()) {
+            if (node instanceof Button) {
+                node.getStyleClass().remove("nav-button-active");
             }
         }
+
+        // Активируем текущую кнопку
+        String targetPath = normalizePath(path);
+
+        for (Node node : sidebarMenu.getChildren()) {
+            if (node instanceof Button btn) {
+                if(updateSpecificNavButton(btn, targetPath)) break;
+            }
+        }
+
+        for (Node node : bottomSidebarMenu.getChildren()) {
+            if (node instanceof Button btn) {
+                if(updateSpecificNavButton(btn, targetPath)) break;
+            }
+        }
+    }
+
+    private boolean updateSpecificNavButton(Button btn, String targetPath) {
+        // Получаем путь из пользовательских данных кнопки или из графики
+        Object userData = btn.getUserData();
+        System.out.println(userData + " = " + targetPath);
+        if (userData instanceof String buttonPath && buttonPath.equals(targetPath)) {
+            btn.getStyleClass().add("nav-button-active");
+            System.out.println("Activated button for path: " + targetPath);
+            return true;
+        }
+        return false;
     }
 
     private String getTitleByPath(String path) {
@@ -108,5 +133,12 @@ public class NavigationService {
             case "/authors" -> "Авторы";
             default -> "Главная";
         };
+    }
+
+    private String normalizePath(String path) {
+        if (path == null || path.trim().isEmpty()) {
+            return "/";
+        }
+        return path.startsWith("/") ? path : "/" + path;
     }
 }
