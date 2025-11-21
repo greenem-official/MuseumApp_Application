@@ -1,5 +1,6 @@
 package org.daylight.museumapp.services;
 
+import org.daylight.museumapp.dto.ApiResult;
 import org.daylight.museumapp.dto.UserData;
 
 import java.io.IOException;
@@ -34,25 +35,25 @@ public class AuthService {
         this.currentUser = currentUser;
     }
 
-    public CompletableFuture<UserData> loginAsync(String username, String password) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                return ApiService.getInstance().login(username, password);
-            } catch (Exception e) {
-                // for CompletableFuture
-                throw new RuntimeException("Registration failed: " + e.getMessage(), e);
-            }
-        });
+    public CompletableFuture<ApiResult<UserData>> loginAsync(String username, String password) {
+        return CompletableFuture.supplyAsync(() ->
+                ApiService.getInstance().login(username, password)
+        );
     }
 
-    public CompletableFuture<Boolean> registerAsync(String username, String password, String fullName) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                return ApiService.getInstance().register(username, password, fullName);
-            } catch (IOException | InterruptedException e) {
-                // for CompletableFuture
-                throw new RuntimeException("Registration failed: " + e.getMessage(), e);
-            }
-        });
+    public CompletableFuture<ApiResult<Void>> registerAsync(String username, String password, String fullName) {
+        return CompletableFuture.supplyAsync(() ->
+                ApiService.getInstance().register(username, password, fullName)
+        );
+    }
+
+    public CompletableFuture<ApiResult<UserData>> registerAndLogin(String username, String password, String fullName) {
+        return registerAsync(username, password, fullName)
+                .thenCompose(result -> {
+                    if (!result.isSuccess()) {
+                        return CompletableFuture.completedFuture(ApiResult.error(result.getError()));
+                    }
+                    return loginAsync(username, password);
+                });
     }
 }

@@ -25,13 +25,13 @@ public class AuthTabPane {
         tabContainer.setAlignment(Pos.CENTER);
         tabContainer.setMaxWidth(Double.MAX_VALUE);
 
-        loginTab = createTab("Вход", true);
-        registerTab = createTab("Регистрация", false);
+        loginTab = createTab("Вход", true, true);
+        registerTab = createTab("Регистрация", false, false);
 
         tabContainer.getChildren().addAll(loginTab, registerTab);
     }
 
-    private Button createTab(String text, boolean isActive) {
+    private Button createTab(String text, boolean isLogin, boolean isActive) {
         Button tab = new Button(text);
         tab.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         tab.setPrefHeight(44);
@@ -42,13 +42,13 @@ public class AuthTabPane {
 
         updateTabStyle(tab, isActive);
 
-        tab.setOnAction(e -> switchTab(text));
+        tab.setOnAction(e -> switchTab(isLogin ? "login" : "register"));
 
         return tab;
     }
 
     private void switchTab(String tabType) {
-        boolean isLogin = "Вход".equals(tabType);
+        boolean isLogin = "login".equals(tabType);
 
         updateTabStyle(loginTab, isLogin);
         updateTabStyle(registerTab, !isLogin);
@@ -68,6 +68,6 @@ public class AuthTabPane {
     }
 
     public void setActiveTab(String tabType) {
-        switchTab("Вход".equals(tabType) ? "Вход" : "Регистрация");
+        switchTab(tabType);
     }
 }

@@ -4,9 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.daylight.museumapp.dto.LoginRequestData;
-import org.daylight.museumapp.dto.RegisterRequestData;
-import org.daylight.museumapp.dto.UserData;
+import org.daylight.museumapp.dto.*;
 import org.daylight.museumapp.model.StatCard;
 import org.daylight.museumapp.util.Icons;
 
@@ -97,48 +95,63 @@ public class ApiService {
         );
     }
 
-    public boolean register(String username, String password, String fullName) throws IOException, InterruptedException {
-        String requestBody = mapper.writeValueAsString(new RegisterRequestData(username, password, fullName));
+    public ApiResult<Void> register(String username, String password, String fullName) {
+        try {
+            String json = mapper.writeValueAsString(
+                    new RegisterRequestData(username, password, fullName)
+            );
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(baseUrl + "/auth/register"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .build();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl + "/auth/register"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
+                    .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-        if (response.statusCode() == 200) {
-            return true;
-        } else {
-            System.err.println("API error: " + response.statusCode());
-            return false;
+            if (response.statusCode() == 200) {
+                return ApiResult.success(null);
+            }
+
+            try {
+                ApiError error = gson.fromJson(response.body(), ApiError.class);
+                return ApiResult.error(error.getMessage());
+            } catch (Exception parseError) {
+                return ApiResult.error("Ошибка регистрации: " + response.statusCode());
+            }
+
+        } catch (IOException e) {
+            return ApiResult.error("Ошибка сериализации запроса");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return ApiResult.error("Запрос был прерван");
+        } catch (Exception e) {
+            return ApiResult.error("Сетевая ошибка: " + e.getMessage());
         }
     }
 
-    public UserData login(String username, String password) {
+    public ApiResult<UserData> login(String username, String password) {
         try {
-            String requestBody = mapper.writeValueAsString(new LoginRequestData(username, password));
+            String json = mapper.writeValueAsString(new LoginRequestData(username, password));
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/auth/login"))
                     .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
                 UserData user = gson.fromJson(response.body(), UserData.class);
-//                System.out.println(user.toString());
-                return user;
-            } else {
-                System.err.println("API error: " + response.statusCode());
+                return ApiResult.success(user);
             }
 
-        } catch (IOException | InterruptedException e) {
-            System.err.println("Failed to fetch stats: " + e.getMessage());
+            ApiError error = gson.fromJson(response.body(), ApiError.class);
+            return ApiResult.error(error.getMessage());
+
+        } catch (Exception e) {
+            return ApiResult.error("Сетевая ошибка");
         }
-        return null;
     }
 }

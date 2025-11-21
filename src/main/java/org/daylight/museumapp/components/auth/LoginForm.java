@@ -7,7 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-public class LoginForm {
+public class LoginForm implements IAuthForm {
     private VBox form;
     private TextField usernameField;
     private PasswordField passwordField;
@@ -94,6 +94,7 @@ public class LoginForm {
         }
     }
 
+    @Override
     public void showError(String message) {
         errorLabel.setText(message);
         errorLabel.setVisible(true);
@@ -105,6 +106,7 @@ public class LoginForm {
         errorLabel.setVisible(false);
     }
 
+    @Override
     public void setLoading(boolean isLoading) {
         Platform.runLater(() -> {
             loginButton.setDisable(isLoading);

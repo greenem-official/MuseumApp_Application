@@ -4,13 +4,11 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.input.DragEvent;
 import javafx.scene.layout.*;
 import org.daylight.museumapp.components.common.GlobalHooks;
-import org.daylight.museumapp.services.ApiService;
+import org.daylight.museumapp.dto.ApiResult;
+import org.daylight.museumapp.dto.UserData;
 import org.daylight.museumapp.services.AuthService;
-
-import java.util.concurrent.CompletableFuture;
 
 public class AuthOverlay {
     private StackPane overlay;
@@ -105,32 +103,30 @@ public class AuthOverlay {
         return form;
     }
 
+    private void processAuthResult(ApiResult<UserData> result, IAuthForm form) {
+        Platform.runLater(() -> {
+            form.setLoading(false);
+
+            if (!result.isSuccess()) {
+                form.showError(result.getError());
+                return;
+            }
+
+            AuthService.getInstance().setCurrentUser(result.getData());
+            GlobalHooks.getInstance().getSidebarAccountButtonChangeHook().run();
+            listener.onAuthSuccess();
+            hide();
+        });
+    }
+
     private void initializeForms() {
         loginForm = new LoginForm(new LoginForm.AuthFormListener() {
             @Override
             public void onLogin(String username, String password) {
-                loginForm.setLoading(true); // TODO
+                loginForm.setLoading(true);
 
                 AuthService.getInstance().loginAsync(username, password)
-                        .whenComplete((userData, throwable) -> {
-                            Platform.runLater(() -> {
-                                loginForm.setLoading(false);
-
-                                if (throwable != null) {
-                                    loginForm.showError("Ошибка сети: " + throwable.getMessage());
-                                    return;
-                                }
-
-                                if (userData != null) {
-                                    AuthService.getInstance().setCurrentUser(userData);
-                                    GlobalHooks.getInstance().getSidebarAccountButtonChangeHook().run();
-                                    if (listener != null) listener.onAuthSuccess();
-                                    hide();
-                                } else {
-                                    loginForm.showError("Неверный логин или пароль");
-                                }
-                            });
-                        });
+                        .thenAccept(result -> processAuthResult(result, loginForm));
             }
 
             @Override
@@ -149,36 +145,8 @@ public class AuthOverlay {
             public void onRegister(String username, String password, String fullName) {
                 registerForm.setLoading(true);
 
-                AuthService.getInstance().registerAsync(username, password, fullName)
-                        .whenComplete((success, throwable) -> {
-                            Platform.runLater(() -> {
-                                if (throwable != null) {
-                                    registerForm.showError("Ошибка сети: " + throwable.getMessage());
-                                    registerForm.setLoading(false);
-                                    return;
-                                }
-
-                                if (success) {
-                                    if (listener != null) listener.onAuthSuccess();
-                                    AuthService.getInstance().loginAsync(username, password)
-                                                    .whenComplete((userData, throwable2) -> Platform.runLater(() -> {
-                                                        if (throwable2 != null) {
-                                                            registerForm.showError("Ошибка сети: " + throwable2.getMessage());
-                                                            registerForm.setLoading(false);
-                                                            return;
-                                                        }
-
-                                                        AuthService.getInstance().setCurrentUser(userData);
-                                                        GlobalHooks.getInstance().getSidebarAccountButtonChangeHook().run();
-                                                        registerForm.setLoading(false);
-                                                    }));
-                                    hide();
-                                } else {
-                                    registerForm.showError("Ошибка регистрации");
-                                    registerForm.setLoading(false);
-                                }
-                            });
-                        });
+                AuthService.getInstance().registerAndLogin(username, password, fullName)
+                        .thenAccept(result -> processAuthResult(result, registerForm));
             }
 
             @Override

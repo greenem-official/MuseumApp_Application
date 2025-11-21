@@ -7,7 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-public class RegisterForm {
+public class RegisterForm implements IAuthForm {
     private VBox form;
     private TextField usernameField;
     private PasswordField passwordField;
@@ -114,6 +114,7 @@ public class RegisterForm {
         }
     }
 
+    @Override
     public void showError(String message) {
         errorLabel.setText(message);
         errorLabel.setVisible(true);
@@ -126,6 +127,7 @@ public class RegisterForm {
         errorLabel.setVisible(false);
     }
 
+    @Override
     public void setLoading(boolean isLoading) {
         Platform.runLater(() -> {
             registerButton.setDisable(isLoading);
