@@ -1,16 +1,26 @@
 package org.daylight.museumapp.components.auth;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
+import javafx.animation.ParallelTransition;
+import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.util.Duration;
 import org.daylight.museumapp.components.common.GlobalHooks;
 import org.daylight.museumapp.dto.ApiResult;
 import org.daylight.museumapp.dto.UserData;
 import org.daylight.museumapp.services.AuthService;
 
 public class AuthOverlay {
+    private Duration animationDuration = Duration.millis(200);
+    private double scaleFrom = 0.85;
+    private Interpolator interpolatorShow = Interpolator.EASE_OUT;
+    private Interpolator interpolatorHide = Interpolator.EASE_IN;
+
     private StackPane overlay;
     private VBox authForm;
     private StackPane formContent;
@@ -85,7 +95,7 @@ public class AuthOverlay {
         subtitle.setPadding(new Insets(0, 30, 20, 30));
 
         // Табы для переключения
-        tabPane = new AuthTabPane(tabType -> switchForm(tabType));
+        tabPane = new AuthTabPane(this::switchForm);
 
         // Контент форм
         formContent = new StackPane();
@@ -176,13 +186,44 @@ public class AuthOverlay {
     public void show() {
         overlay.setVisible(true);
         tabPane.setActiveTab("login");
+        overlay.requestFocus();
+
+        ScaleTransition scaleIn = new ScaleTransition(animationDuration, authForm);
+        scaleIn.setFromX(scaleFrom);
+        scaleIn.setFromY(scaleFrom);
+        scaleIn.setToX(1.0);
+        scaleIn.setToY(1.0);
+        scaleIn.setInterpolator(interpolatorShow);
+
+        FadeTransition fadeIn = new FadeTransition(animationDuration, overlay);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+
+        new ParallelTransition(scaleIn, fadeIn).play();
     }
 
     public void hide() {
+        ScaleTransition scaleOut = new ScaleTransition(animationDuration, authForm);
+        scaleOut.setFromX(1.0);
+        scaleOut.setFromY(1.0);
+        scaleOut.setToX(scaleFrom);
+        scaleOut.setToY(scaleFrom);
+        scaleOut.setInterpolator(interpolatorHide);
+
+        FadeTransition fadeOut = new FadeTransition(animationDuration, overlay);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+
+        ParallelTransition parallelOut = new ParallelTransition(scaleOut, fadeOut);
+        parallelOut.setOnFinished(e -> finishHide());
+        parallelOut.play();
+    }
+
+    private void finishHide() {
         overlay.setVisible(false);
-        if (listener != null) {
-            listener.onAuthClose();
-        }
+        authForm.setScaleX(1.0);
+        authForm.setScaleY(1.0);
+        if (listener != null) listener.onAuthClose();
     }
 
     public StackPane getOverlay() {
