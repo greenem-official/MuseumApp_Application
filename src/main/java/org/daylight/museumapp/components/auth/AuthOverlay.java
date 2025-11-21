@@ -86,8 +86,6 @@ public class AuthOverlay {
 
         // Табы для переключения
         tabPane = new AuthTabPane(tabType -> switchForm(tabType));
-        tabPane.getTabs().setMinHeight(40);
-        tabPane.getTabs().setMaxHeight(40);
 
         // Контент форм
         formContent = new StackPane();

@@ -4,6 +4,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.TilePane;
 
 public class AuthTabPane {
     private HBox tabContainer;
@@ -22,11 +23,18 @@ public class AuthTabPane {
 
     private void initializeTabs() {
         tabContainer = new HBox(0);
-        tabContainer.setAlignment(Pos.CENTER);
         tabContainer.setMaxWidth(Double.MAX_VALUE);
+        tabContainer.setMinHeight(40);
+        tabContainer.setMaxHeight(40);
+        tabContainer.setAlignment(Pos.CENTER);
 
         loginTab = createTab("Вход", true, true);
         registerTab = createTab("Регистрация", false, false);
+
+        loginTab.setMaxWidth(Double.MAX_VALUE);
+        registerTab.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(loginTab, Priority.ALWAYS);
+        HBox.setHgrow(registerTab, Priority.ALWAYS);
 
         tabContainer.getChildren().addAll(loginTab, registerTab);
     }
