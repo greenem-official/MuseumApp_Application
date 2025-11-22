@@ -48,7 +48,8 @@ public class MuseumApp extends Application {
         try {
             String cssPath = getClass().getResource("/styles/museum-light.css").toExternalForm();
             String notificationsCss = getClass().getResource("/styles/notifications.css").toExternalForm();
-            scene.getStylesheets().addAll(cssPath, notificationsCss);
+            String accountCss = getClass().getResource("/styles/account.css").toExternalForm();
+            scene.getStylesheets().addAll(cssPath, notificationsCss, accountCss);
         } catch (Exception e) {
             System.err.println("CSS not found, using default styles");
         }
@@ -57,11 +58,11 @@ public class MuseumApp extends Application {
         primaryStage.setTitle("Информационная система музея");
         primaryStage.show();
 
-        if (!AuthService.getInstance().isAuthenticated()) {
-            authOverlay.show();
-        }
+//        if (!AuthService.getInstance().isAuthenticated()) {
+//            authOverlay.show();
+//        }
 
-        testNotifications();
+//        testNotifications();
     }
 
     private void testNotifications() {

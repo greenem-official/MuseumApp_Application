@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import org.daylight.museumapp.components.auth.AuthOverlay;
 import org.daylight.museumapp.components.pages.*;
 
 public class NavigationService {
@@ -36,6 +37,11 @@ public class NavigationService {
     }
 
     public void navigateTo(String path) {
+        if(requiresAuthentication(path) && !AuthService.getInstance().isAuthenticated()) {
+            AuthOverlay.getInstance().show();
+            return;
+        }
+
         System.out.println("navigateTo: " + path);
         if (contentArea == null) {
             System.out.println("Content area is null!");
@@ -58,6 +64,13 @@ public class NavigationService {
         });
 
         fadeOut.play();
+    }
+
+    private boolean requiresAuthentication(String path) {
+        return switch (path) {
+            case "/exhibits", "/authors", "/collections", "/halls", "/account" -> true;
+            default -> false;
+        };
     }
 
     private void loadContentForPath(String path) {

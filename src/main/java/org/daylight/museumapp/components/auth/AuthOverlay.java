@@ -14,6 +14,7 @@ import org.daylight.museumapp.components.common.GlobalHooks;
 import org.daylight.museumapp.dto.ApiResult;
 import org.daylight.museumapp.dto.UserData;
 import org.daylight.museumapp.services.AuthService;
+import org.daylight.museumapp.services.NotificationService;
 
 public class AuthOverlay {
     private Duration animationDuration = Duration.millis(200);
@@ -36,7 +37,14 @@ public class AuthOverlay {
         void onAuthClose();
     }
 
+    private static AuthOverlay instance = null;
+
+    public static AuthOverlay getInstance() {
+        return instance;
+    }
+
     public AuthOverlay(AuthFormListener listener) {
+        this.instance = this;
         this.listener = listener;
         initializeOverlay();
     }
@@ -123,6 +131,7 @@ public class AuthOverlay {
             AuthService.getInstance().setCurrentUser(result.getData());
             GlobalHooks.getInstance().getSidebarAccountButtonChangeHook().run();
             listener.onAuthSuccess();
+            NotificationService.getInstance().success("Успешный вход в аккаунт");
             hide();
         });
     }
