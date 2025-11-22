@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NotificationContainer {
-
     private static final double TOAST_SPACING = 10;
     private static final Duration MOVE_ANIMATION = Duration.millis(200);
 
@@ -63,11 +62,26 @@ public class NotificationContainer {
         NotificationToast toast = activeToasts.get(id);
         if (toast == null) return;
 
+        // Когда один уходит — все остальные тоже начинают плавно сползать
         toast.playHideAnimation(() -> {
             container.getChildren().remove(toast.getToast());
             activeToasts.remove(id);
-            animateReposition();
+
+            smoothShiftAllDown();
         });
+    }
+
+    /**
+     * Плавное "проседание" всех уведомлений при исчезновении одного
+     */
+    private void smoothShiftAllDown() {
+        for (var node : container.getChildren()) {
+            TranslateTransition transition = new TranslateTransition(Duration.millis(250), node);
+            transition.setFromY(node.getTranslateY() - 20);
+            transition.setToY(0);
+            transition.setInterpolator(Interpolator.EASE_OUT);
+            transition.play();
+        }
     }
 
     /**

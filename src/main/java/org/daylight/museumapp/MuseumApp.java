@@ -67,7 +67,7 @@ public class MuseumApp extends Application {
     private void testNotifications() {
         NotificationService service = NotificationService.getInstance();
 
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= 3; i++) {
             final int index = i;
             new Thread(() -> {
                 try {
