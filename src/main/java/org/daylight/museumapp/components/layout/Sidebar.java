@@ -67,23 +67,24 @@ public class Sidebar {
         menu.getStyleClass().add("sidebar-menu");
         menu.setPadding(new Insets(0, 12, 20, 12));
 
-        NavigationItem[] navItems = {
-                new NavigationItem("Главная", "/", Icons.HOME),
-                new NavigationItem("Экспонаты", "/exhibits", Icons.EXHIBITS),
-                new NavigationItem("Коллекции", "/collections", Icons.COLLECTIONS),
-                new NavigationItem("Залы", "/halls", Icons.HALLS),
-                new NavigationItem("Авторы", "/authors", Icons.AUTHORS),
+        Button homePageButton = createNavButton(new NavigationItem("Главная", "/", Icons.HOME), null);
+        Button exhibitsPageButton = createNavButton(new NavigationItem("Экспонаты", "/exhibits", Icons.EXHIBITS), null);
+        Button collectionsPageButton = createNavButton(new NavigationItem("Коллекции", "/collections", Icons.COLLECTIONS), null);
+        Button hallsPageButton = createNavButton(new NavigationItem("Залы", "/halls", Icons.HALLS), null);
+        Button authorsPageButton = createNavButton(new NavigationItem("Авторы", "/authors", Icons.AUTHORS), null);
+
+        menu.getChildren().addAll(homePageButton, exhibitsPageButton, collectionsPageButton, hallsPageButton, authorsPageButton);
+        homePageButton.getStyleClass().add("nav-button-active");
+
+        GlobalHooks.getInstance().sidebarOnAuthStateChange = () -> {
+            boolean authenticated = AuthService.getInstance().isAuthenticated();
+            exhibitsPageButton.setVisible(authenticated);
+            collectionsPageButton.setVisible(authenticated);
+            hallsPageButton.setVisible(authenticated);
+            authorsPageButton.setVisible(authenticated);
         };
 
-        for (NavigationItem item : navItems) {
-            Button navButton = createNavButton(item, null);
-            menu.getChildren().add(navButton);
-
-            // Устанавливаем активный класс для главной страницы по умолчанию
-            if (item.path().equals("/")) {
-                navButton.getStyleClass().add("nav-button-active");
-            }
-        }
+        GlobalHooks.getInstance().sidebarOnAuthStateChange.run();
 
         return menu;
     }
@@ -99,12 +100,12 @@ public class Sidebar {
 
         for (NavigationItem item : navItems) {
             Button navButton = createNavButton(item, item.path().equals("/account") ? label -> GlobalHooks.getInstance().setSidebarAccountButtonChangeHook(() -> {
-                label.setText(AuthService.getInstance().isAuthenticated() ? AuthService.getInstance().getCurrentUser().getUsername() : "Нет Аккаунта");
+                label.setText(AuthService.getInstance().isAuthenticated() ? AuthService.getInstance().getCurrentUser().getUsername() : "Войти...");
             }) : null);
             menu.getChildren().add(navButton);
         }
 
-        GlobalHooks.getInstance().getSidebarAccountButtonChangeHook().run();
+        GlobalHooks.getInstance().sidebarAccountButtonChangeHook.run();
 
         return menu;
     }

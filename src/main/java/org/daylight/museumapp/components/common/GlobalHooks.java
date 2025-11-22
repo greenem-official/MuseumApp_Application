@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
 @Setter
 public class GlobalHooks {
     private static GlobalHooks instance;
@@ -16,5 +15,6 @@ public class GlobalHooks {
         return instance;
     }
 
-    private Runnable sidebarAccountButtonChangeHook;
+    public Runnable sidebarAccountButtonChangeHook;
+    public Runnable sidebarOnAuthStateChange;
 }

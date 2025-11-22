@@ -129,7 +129,8 @@ public class AuthOverlay {
             }
 
             AuthService.getInstance().setCurrentUser(result.getData());
-            GlobalHooks.getInstance().getSidebarAccountButtonChangeHook().run();
+            GlobalHooks.getInstance().sidebarAccountButtonChangeHook.run();
+            GlobalHooks.getInstance().sidebarOnAuthStateChange.run();
             listener.onAuthSuccess();
             NotificationService.getInstance().success("Успешный вход в аккаунт");
             hide();

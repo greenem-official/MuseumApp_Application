@@ -1,5 +1,6 @@
 package org.daylight.museumapp.services;
 
+import org.daylight.museumapp.components.common.GlobalHooks;
 import org.daylight.museumapp.dto.ApiResult;
 import org.daylight.museumapp.dto.UserData;
 
@@ -21,6 +22,7 @@ public class AuthService {
 
     public void logout() {
         currentUser = null;
+        GlobalHooks.getInstance().sidebarOnAuthStateChange.run();
     }
 
     public boolean isAuthenticated() {
