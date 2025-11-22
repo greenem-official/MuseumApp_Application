@@ -6,13 +6,14 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.daylight.museumapp.components.loading.LoadingDots;
 
 public class LoginForm implements IAuthForm {
     private VBox form;
     private TextField usernameField;
     private PasswordField passwordField;
     private Button loginButton;
-    private ProgressIndicator progressIndicator;
+    private LoadingDots loadingDots;
     private Label errorLabel;
     private AuthFormListener listener;
 
@@ -50,9 +51,8 @@ public class LoginForm implements IAuthForm {
         errorLabel.setVisible(false);
         errorLabel.setMaxWidth(Double.MAX_VALUE);
 
-        progressIndicator = new ProgressIndicator();
-        progressIndicator.setVisible(false);
-        progressIndicator.setMaxSize(30, 30);
+        loadingDots = new LoadingDots();
+        loadingDots.getDots().setVisible(false);
 
         // Кнопка входа
         loginButton = new Button("Войти");
@@ -77,7 +77,7 @@ public class LoginForm implements IAuthForm {
 
         bottomBox.getChildren().addAll(registerLabel, registerLink);
 
-        form.getChildren().addAll(usernameField, passwordField, errorLabel, progressIndicator, loginButton, bottomBox);
+        form.getChildren().addAll(usernameField, passwordField, errorLabel, loadingDots.getDots(), loginButton, bottomBox);
     }
 
     private void attemptLogin() {
@@ -111,7 +111,7 @@ public class LoginForm implements IAuthForm {
         Platform.runLater(() -> {
             loginButton.setDisable(isLoading);
             loginButton.setText(isLoading ? "Вход..." : "Войти");
-            progressIndicator.setVisible(isLoading);
+            loadingDots.getDots().setVisible(isLoading);
             usernameField.setDisable(isLoading);
             passwordField.setDisable(isLoading);
         });

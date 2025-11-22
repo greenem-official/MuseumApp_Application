@@ -1,7 +1,10 @@
 package org.daylight.museumapp.services;
 
+import javafx.application.Platform;
 import org.daylight.museumapp.components.common.GlobalHooks;
+import org.daylight.museumapp.components.common.storage.StorageUtil;
 import org.daylight.museumapp.dto.ApiResult;
+import org.daylight.museumapp.dto.TokenCheckResponse;
 import org.daylight.museumapp.dto.UserData;
 
 import java.io.IOException;
@@ -22,7 +25,8 @@ public class AuthService {
 
     public void logout() {
         currentUser = null;
-        GlobalHooks.getInstance().sidebarOnAuthStateChange.run();
+        StorageUtil.onSave();
+        Platform.runLater(GlobalHooks.getInstance().sidebarOnAuthStateChange);
     }
 
     public boolean isAuthenticated() {
@@ -35,6 +39,7 @@ public class AuthService {
 
     public void setCurrentUser(UserData currentUser) {
         this.currentUser = currentUser;
+        StorageUtil.onSave();
     }
 
     public CompletableFuture<ApiResult<UserData>> loginAsync(String username, String password) {
@@ -57,5 +62,11 @@ public class AuthService {
                     }
                     return loginAsync(username, password);
                 });
+    }
+
+    public CompletableFuture<ApiResult<TokenCheckResponse>> checkTokenAsync(String token) {
+        return CompletableFuture.supplyAsync(() ->
+                ApiService.getInstance().checkToken(token)
+        );
     }
 }

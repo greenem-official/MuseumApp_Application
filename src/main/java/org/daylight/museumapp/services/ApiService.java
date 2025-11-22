@@ -9,6 +9,7 @@ import org.daylight.museumapp.model.StatCard;
 import org.daylight.museumapp.util.Icons;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -152,6 +153,34 @@ public class ApiService {
 
         } catch (Exception e) {
             return ApiResult.error("Сетевая ошибка");
+        }
+    }
+
+    public ApiResult<TokenCheckResponse> checkToken(String token) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl + "/auth/check_token"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + token)
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            System.out.println("Check token response: " + response.statusCode());
+
+            if (response.statusCode() == 200) {
+                TokenCheckResponse tokenResponse = gson.fromJson(response.body(), TokenCheckResponse.class);
+                return ApiResult.success(tokenResponse);
+            }
+
+            ApiError error = gson.fromJson(response.body(), ApiError.class);
+            return ApiResult.error(error.getMessage());
+        } catch (ConnectException e) {
+            return ApiResult.throwable(e);
+        } catch (Exception e) {
+            System.out.println(e.getClass().getName());
+            return ApiResult.error("Сетевая ошибка: " + e.getMessage());
         }
     }
 }
