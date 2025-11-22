@@ -6,12 +6,15 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.daylight.museumapp.components.auth.AuthOverlay;
 import org.daylight.museumapp.components.layout.AppLayout;
+import org.daylight.museumapp.components.notifications.NotificationContainer;
 import org.daylight.museumapp.services.AuthService;
+import org.daylight.museumapp.services.NotificationService;
 
 import java.util.logging.Logger;
 
 public class MuseumApp extends Application {
     public static final Logger LOGGER = Logger.getLogger(MuseumApp.class.getName());
+    private NotificationContainer notificationContainer;
 
     @Override
     public void start(Stage primaryStage) {
@@ -33,16 +36,19 @@ public class MuseumApp extends Application {
             }
         });
 
+        notificationContainer = new NotificationContainer();
+
         // корневой контейнер
         StackPane rootContainer = new StackPane();
-        rootContainer.getChildren().addAll(appLayout.getRoot(), authOverlay.getOverlay());
+        rootContainer.getChildren().addAll(appLayout.getRoot(), authOverlay.getOverlay(), notificationContainer.getContainer());
 
         Scene scene = new Scene(rootContainer, 1400, 900);
 
         // Загрузка CSS
         try {
             String cssPath = getClass().getResource("/styles/museum-light.css").toExternalForm();
-            scene.getStylesheets().add(cssPath);
+            String notificationsCss = getClass().getResource("/styles/notifications.css").toExternalForm();
+            scene.getStylesheets().addAll(cssPath, notificationsCss);
         } catch (Exception e) {
             System.err.println("CSS not found, using default styles");
         }
@@ -54,6 +60,11 @@ public class MuseumApp extends Application {
         if (!AuthService.getInstance().isAuthenticated()) {
             authOverlay.show();
         }
+
+//        NotificationService.getInstance().info("А");
+        NotificationService.getInstance().warning("Тест");
+//        NotificationService.getInstance().error("Тест");
+        NotificationService.getInstance().success("Тест побольше");
     }
 
     private void updateUIAfterAuth() {
