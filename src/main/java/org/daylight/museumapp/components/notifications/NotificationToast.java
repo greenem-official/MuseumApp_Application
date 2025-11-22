@@ -78,37 +78,31 @@ public class NotificationToast {
         };
     }
 
-    public void show() {
-        if (isHiding) return; // Не показываем если уже скрываемся
+    public void playShowAnimation() {
+        toast.setOpacity(0);
+        toast.setTranslateY(30);
 
-        TranslateTransition slideIn = new TranslateTransition(ANIMATION_DURATION, toast);
-        slideIn.setToY(targetY);
-        slideIn.setInterpolator(Interpolator.EASE_OUT);
+        FadeTransition fade = new FadeTransition(Duration.millis(200), toast);
+        fade.setFromValue(0);
+        fade.setToValue(1);
 
-        FadeTransition fadeIn = new FadeTransition(ANIMATION_DURATION, toast);
-        fadeIn.setToValue(1.0);
+        TranslateTransition slide = new TranslateTransition(Duration.millis(200), toast);
+        slide.setFromY(30);
+        slide.setToY(0);
 
-        new ParallelTransition(slideIn, fadeIn).play();
+        new ParallelTransition(fade, slide).play();
     }
 
-    public void hide(Runnable onFinished) {
-        if (isHiding) return; // Уже скрываемся
+    public void playHideAnimation(Runnable onFinish) {
+        FadeTransition fade = new FadeTransition(Duration.millis(200), toast);
+        fade.setToValue(0);
 
-        isHiding = true;
+        TranslateTransition slide = new TranslateTransition(Duration.millis(200), toast);
+        slide.setToY(30);
 
-        TranslateTransition slideOut = new TranslateTransition(ANIMATION_DURATION, toast);
-        slideOut.setToY(100); // Уезжает вниз
-        slideOut.setInterpolator(Interpolator.EASE_IN);
-
-        FadeTransition fadeOut = new FadeTransition(ANIMATION_DURATION, toast);
-        fadeOut.setToValue(0.0);
-
-        ParallelTransition parallel = new ParallelTransition(slideOut, fadeOut);
-        parallel.setOnFinished(e -> {
-            isHiding = false;
-            onFinished.run();
-        });
-        parallel.play();
+        ParallelTransition pt = new ParallelTransition(fade, slide);
+        pt.setOnFinished(e -> onFinish.run());
+        pt.play();
     }
 
     public void setTargetY(double y) {

@@ -61,10 +61,23 @@ public class MuseumApp extends Application {
             authOverlay.show();
         }
 
-//        NotificationService.getInstance().info("А");
-        NotificationService.getInstance().warning("Тест");
-//        NotificationService.getInstance().error("Тест");
-        NotificationService.getInstance().success("Тест побольше");
+        testNotifications();
+    }
+
+    private void testNotifications() {
+        NotificationService service = NotificationService.getInstance();
+
+        for (int i = 1; i <= 10; i++) {
+            final int index = i;
+            new Thread(() -> {
+                try {
+                    Thread.sleep(index * 200);
+                    service.success("Тестовое уведомление " + index);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        }
     }
 
     private void updateUIAfterAuth() {
