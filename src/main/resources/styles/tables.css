@@ -1,0 +1,73 @@
+/* museum-list-detail.css */
+.museum-ld-root {
+    -fx-font-family: "Segoe UI", "Tahoma", sans-serif;
+    -fx-background-color: transparent;
+}
+
+/* Left pane (контейнер таблицы) */
+.museum-ld-left {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Table appearance */
+.museum-ld-table {
+    -fx-background-color: -fx-control-inner-background;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0.0, 0, 2);
+}
+
+/* Column headers */
+.museum-ld-col {
+    -fx-font-weight: bold;
+    -fx-padding: 6 8 6 8;
+}
+
+/* header label inside header HBox */
+.museum-ld-header-label {
+    -fx-text-fill: -fx-text-secondary;
+}
+
+/* sort/filter nav buttons in header */
+.museum-ld-nav-button {
+    -fx-background-radius: 6;
+    -fx-padding: 4 6 4 6;
+    -fx-border-color: transparent;
+}
+
+.museum-ld-nav-button-active {
+    -fx-background-color: -fx-accent;
+    -fx-text-fill: white;
+}
+
+/* detail wrapper (правый блок) */
+.museum-ld-right-wrapper {
+    -fx-padding: 0 0 0 12;
+}
+
+/* detail pane card */
+.museum-ld-detail {
+    -fx-background-color: white;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);
+}
+
+/* muted text for values */
+.museum-ld-muted {
+    -fx-fill: #6b6b6b;
+}
+
+/* loading overlay */
+.museum-ld-loading {
+    -fx-background-color: rgba(255,255,255,0.6);
+    -fx-alignment: center;
+}
+
+/* pagination */
+.museum-ld-pagination {
+    -fx-padding: 8 0 0 0;
+    -fx-spacing: 8;
+}

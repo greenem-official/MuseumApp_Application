@@ -26,7 +26,10 @@ public class AuthService {
     public void logout() {
         currentUser = null;
         StorageUtil.onSave();
-        Platform.runLater(GlobalHooks.getInstance().sidebarOnAuthStateChange);
+        Platform.runLater(() -> {
+            GlobalHooks.getInstance().sidebarOnAuthStateChange.run();
+            GlobalHooks.getInstance().sidebarAccountButtonChangeHook.run();
+        });
     }
 
     public boolean isAuthenticated() {

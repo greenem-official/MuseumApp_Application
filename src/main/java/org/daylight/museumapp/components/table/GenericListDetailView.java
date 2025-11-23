@@ -1,5 +1,6 @@
 package org.daylight.museumapp.components.table;
 
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -12,6 +13,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
+import javafx.util.Duration;
 import org.daylight.museumapp.dto.ApiResult;
 import org.daylight.museumapp.dto.PagedResult;
 import org.daylight.museumapp.dto.filterrelated.PagedRequest;
@@ -436,16 +438,33 @@ public class GenericListDetailView<T> extends HBox {
     }
 
     private void showDetailPane(boolean show) {
-        rightPaneWrapper.setVisible(show);
-        rightPaneWrapper.setManaged(show);
         if (show) {
-            leftPane.setPrefWidth(600);
-            leftPane.setMaxWidth(Double.MAX_VALUE);
-            this.setSpacing(16);
+            // make visible and animate in
+            rightPaneWrapper.setManaged(true);
+            rightPaneWrapper.setVisible(true);
+            rightPaneWrapper.setOpacity(0);
+            FadeTransition ft = new FadeTransition(Duration.millis(160), rightPaneWrapper);
+            ft.setToValue(1.0);
+            ft.play();
         } else {
-            leftPane.setPrefWidth(Double.MAX_VALUE);
+            // animate out then hide
+            FadeTransition ft = new FadeTransition(Duration.millis(140), rightPaneWrapper);
+            ft.setToValue(0.0);
+            ft.setOnFinished(evt -> {
+                rightPaneWrapper.setVisible(false);
+                rightPaneWrapper.setManaged(false);
+            });
+            ft.play();
         }
+
+        // НЕ менять prefWidth у leftPane — это убирает дерганья.
+        // Но попросим TableView пересчитать размеры после анимации/события:
+        Platform.runLater(() -> {
+            table.refresh();         // обновит содержимое и размеры ячеек
+            table.requestLayout();   // форсирует перерасчёт layout
+        });
     }
+
 
     private void buildPaginationBar() {
         paginationBar.getChildren().clear();

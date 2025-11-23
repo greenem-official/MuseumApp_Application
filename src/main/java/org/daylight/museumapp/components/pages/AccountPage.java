@@ -161,7 +161,6 @@ public class AccountPage {
     private void handleLogout() {
         authService.logout();
         NotificationService.getInstance().success("Вы успешно вышли из системы");
-        GlobalHooks.getInstance().sidebarAccountButtonChangeHook.run();
         NavigationService.getInstance().navigateTo("/");
     }
 

@@ -3,6 +3,7 @@ package org.daylight.museumapp;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.daylight.museumapp.components.auth.AuthOverlay;
@@ -15,6 +16,7 @@ import org.daylight.museumapp.services.AuthService;
 import org.daylight.museumapp.services.NotificationService;
 
 import java.net.ConnectException;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 public class MuseumApp extends Application {
@@ -58,9 +60,18 @@ public class MuseumApp extends Application {
             String cssPath = getClass().getResource("/styles/museum-light.css").toExternalForm();
             String notificationsCss = getClass().getResource("/styles/notifications.css").toExternalForm();
             String accountCss = getClass().getResource("/styles/account.css").toExternalForm();
-            scene.getStylesheets().addAll(cssPath, notificationsCss, accountCss);
+            String tablesCss = getClass().getResource("/styles/tables.css").toExternalForm();
+            scene.getStylesheets().addAll(cssPath, notificationsCss, accountCss, tablesCss);
         } catch (Exception e) {
             System.err.println("CSS not found, using default styles");
+        }
+
+        try {
+            String iconPath = getClass().getResource("/images/icon.png").toExternalForm();
+            Image icon = new Image(iconPath);
+            primaryStage.getIcons().add(icon);
+        } catch (Exception e) {
+            System.out.println("Не удалось загрузить иконку: " + e.getMessage());
         }
 
         primaryStage.setScene(scene);
