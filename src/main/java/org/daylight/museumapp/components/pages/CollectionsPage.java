@@ -27,7 +27,7 @@ public class CollectionsPage {
 
         boolean isAdmin = false;
         if(AuthService.getInstance().isAuthenticated()) isAdmin = AuthService.getInstance().getCurrentUser().getRole() == UserRole.ADMIN;
-        GenericListDetailView<Collection> view = new GenericListDetailView<>(Collection.class, fetcher, isAdmin);
+        GenericListDetailView<Collection> view = new GenericListDetailView<>(Collection.class, fetcher, isAdmin, "Коллекции");
 
         content.getChildren().addAll(view);
     }

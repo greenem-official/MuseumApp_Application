@@ -29,7 +29,7 @@ public class ExhibitsPage {
 
         boolean isAdmin = false;
         if(AuthService.getInstance().isAuthenticated()) isAdmin = AuthService.getInstance().getCurrentUser().getRole() == UserRole.ADMIN;
-        GenericListDetailView<Item> view = new GenericListDetailView<>(Item.class, fetcher, isAdmin);
+        GenericListDetailView<Item> view = new GenericListDetailView<>(Item.class, fetcher, isAdmin, "Экспонаты");
 
         content.getChildren().addAll(view);
     }

@@ -8,6 +8,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.daylight.museumapp.components.auth.AuthOverlay;
 import org.daylight.museumapp.components.common.GlobalHooks;
+import org.daylight.museumapp.components.common.SeparateStyles;
 import org.daylight.museumapp.components.common.storage.StorageUtil;
 import org.daylight.museumapp.components.layout.AppLayout;
 import org.daylight.museumapp.components.loading.LoadingScreen;
@@ -55,17 +56,19 @@ public class MuseumApp extends Application {
 
         Scene scene = new Scene(rootContainer, 1400, 900);
 
-        // Загрузка CSS
+        // Loading CSS
         try {
             String cssPath = getClass().getResource("/styles/museum-light.css").toExternalForm();
             String notificationsCss = getClass().getResource("/styles/notifications.css").toExternalForm();
             String accountCss = getClass().getResource("/styles/account.css").toExternalForm();
-            String tablesCss = getClass().getResource("/styles/tables.css").toExternalForm();
-            scene.getStylesheets().addAll(cssPath, notificationsCss, accountCss, tablesCss);
+            scene.getStylesheets().addAll(cssPath, notificationsCss, accountCss);
         } catch (Exception e) {
             System.err.println("CSS not found, using default styles");
         }
 
+        SeparateStyles.init();
+
+        // Loading icon
         try {
             String iconPath = getClass().getResource("/images/icon.png").toExternalForm();
             Image icon = new Image(iconPath);

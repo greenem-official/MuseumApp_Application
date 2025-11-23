@@ -14,6 +14,8 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import org.daylight.museumapp.components.common.SeparateStyles;
+import org.daylight.museumapp.components.loading.LoadingDots;
 import org.daylight.museumapp.dto.ApiResult;
 import org.daylight.museumapp.dto.PagedResult;
 import org.daylight.museumapp.dto.filterrelated.PagedRequest;
@@ -45,7 +47,7 @@ public class GenericListDetailView<T> extends HBox {
     private final VBox leftPane = new VBox(12);
     private final StackPane rightPaneWrapper = new StackPane();
     private final BorderPane detailPane = new BorderPane();
-    private final LoadingOverlay loading = new LoadingOverlay();
+    private final LoadingDots loading = new LoadingDots();
     private final PaginationBar paginationBar;
 
     private int page = 0;
@@ -53,16 +55,20 @@ public class GenericListDetailView<T> extends HBox {
     private String sortField = "id";
     private boolean sortAsc = true;
     private boolean adminMode = false;
+    private String titleName;
 
     private PagedResult<T> lastPage;
 
     public GenericListDetailView(Class<T> type,
                                  Function<PagedRequest, CompletableFuture<ApiResult<PagedResult<T>>>> fetcher,
-                                 boolean adminMode) {
+                                 boolean adminMode, String titleName) {
         this.type = type;
         this.fetcher = fetcher;
         this.adminMode = adminMode;
+        this.titleName = titleName;
         this.paginationBar = new PaginationBar(this::goToPage);
+
+        this.getStylesheets().addAll(SeparateStyles.tablesCss);
 
         initialize();
 
@@ -84,7 +90,7 @@ public class GenericListDetailView<T> extends HBox {
         HBox topControls = new HBox(12);
         topControls.setAlignment(Pos.CENTER_LEFT);
 
-        Label title = new Label(type.getSimpleName() + " — Список");
+        Label title = new Label(titleName);
         title.getStyleClass().addAll("museum-ld-title");
 
         Region spacer = new Region();
@@ -131,8 +137,8 @@ public class GenericListDetailView<T> extends HBox {
 
         rightPaneWrapper.getChildren().add(detailPane);
 
-        StackPane leftStack = new StackPane(leftPane, loading);
-        StackPane.setAlignment(loading, Pos.CENTER);
+        StackPane leftStack = new StackPane(leftPane, loading.getDots());
+        StackPane.setAlignment(loading.getDots(), Pos.CENTER);
 
         this.getChildren().addAll(leftStack, rightPaneWrapper);
         HBox.setHgrow(leftStack, Priority.ALWAYS);
@@ -227,7 +233,7 @@ public class GenericListDetailView<T> extends HBox {
     }
 
     private void showLoading(boolean on) {
-        loading.setVisible(on);
+        loading.getDots().setVisible(on);
     }
 
     private void showError(String text) {

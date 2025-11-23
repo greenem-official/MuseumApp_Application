@@ -4,9 +4,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.StackPane;
 
-/**
- * Простой overlay с индикатором загрузки.
- */
+@Deprecated
 public class LoadingOverlay extends StackPane {
     private final ProgressIndicator progress = new ProgressIndicator();
 

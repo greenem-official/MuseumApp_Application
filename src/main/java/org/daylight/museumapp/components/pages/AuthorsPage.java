@@ -27,7 +27,7 @@ public class AuthorsPage {
 
         boolean isAdmin = false;
         if(AuthService.getInstance().isAuthenticated()) isAdmin = AuthService.getInstance().getCurrentUser().getRole() == UserRole.ADMIN;
-        GenericListDetailView<Author> view = new GenericListDetailView<>(Author.class, fetcher, isAdmin);
+        GenericListDetailView<Author> view = new GenericListDetailView<>(Author.class, fetcher, isAdmin, "Авторы");
 
         content.getChildren().addAll(view);
     }

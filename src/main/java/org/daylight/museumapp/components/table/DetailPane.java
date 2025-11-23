@@ -4,6 +4,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.control.ScrollPane;
@@ -17,37 +18,46 @@ public class DetailPane<T> {
     private final VBox root = new VBox(12);
 
     public DetailPane(Class<T> type, T item, Runnable onClose) {
-        root.setPadding(new Insets(12));
-        root.getStyleClass().add("museum-ld-muted");
+        // Основной контейнер
+        root.getStyleClass().add("museum-ld-root");
 
-        VBox header = new VBox();
-        header.setAlignment(Pos.CENTER_RIGHT);
+        // Хедер с кнопкой закрытия
+        HBox header = new HBox();
+        header.setAlignment(Pos.TOP_RIGHT);
+
         Button close = new Button("✕");
         close.getStyleClass().add("museum-ld-close");
         close.setOnAction(e -> onClose.run());
         header.getChildren().add(close);
 
+        // Заголовок
         Label title = new Label(type.getSimpleName() + " — Подробно");
         title.getStyleClass().add("museum-ld-title");
 
-        VBox fieldsBox = new VBox(8);
+        // Контейнер для полей
+        VBox fieldsBox = new VBox(12);
         for (Field f : type.getDeclaredFields()) {
             String fname = prettyColumnName(f.getName());
             Object val = safeGetProperty(item, f);
+
             Label label = new Label(fname + ":");
             label.getStyleClass().add("museum-ld-field-label");
+
             Text valueText = new Text(val == null ? "-" : String.valueOf(val));
             valueText.getStyleClass().add("museum-ld-muted");
+
             VBox block = new VBox(2, label, valueText);
             block.setPadding(new Insets(4, 0, 4, 0));
             fieldsBox.getChildren().add(block);
         }
 
+        // ScrollPane для полей
         ScrollPane sp = new ScrollPane(fieldsBox);
         sp.setFitToWidth(true);
         sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         sp.getStyleClass().add("museum-ld-detail-scroll");
 
+        // Собираем всё
         root.getChildren().addAll(header, title, sp);
     }
 

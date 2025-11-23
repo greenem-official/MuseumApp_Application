@@ -27,7 +27,7 @@ public class HallsPage {
 
         boolean isAdmin = false;
         if(AuthService.getInstance().isAuthenticated()) isAdmin = AuthService.getInstance().getCurrentUser().getRole() == UserRole.ADMIN;
-        GenericListDetailView<Hall> view = new GenericListDetailView<>(Hall.class, fetcher, isAdmin);
+        GenericListDetailView<Hall> view = new GenericListDetailView<>(Hall.class, fetcher, isAdmin, "Залы");
 
         content.getChildren().addAll(view);
     }
