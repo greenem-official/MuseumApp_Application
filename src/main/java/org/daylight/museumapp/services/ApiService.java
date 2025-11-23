@@ -6,6 +6,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import org.daylight.museumapp.dto.*;
+import org.daylight.museumapp.dto.tables.Author;
+import org.daylight.museumapp.dto.tables.Collection;
+import org.daylight.museumapp.dto.tables.Hall;
 import org.daylight.museumapp.dto.tables.Item;
 import org.daylight.museumapp.model.StatCard;
 import org.daylight.museumapp.util.Icons;
@@ -202,11 +205,90 @@ public class ApiService {
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-            System.out.println("Check token response: " + response.statusCode());
-
             if (response.statusCode() == 200) {
                 Type type = new TypeToken<PagedResult<Item>>() {}.getType();
                 PagedResult<Item> pagedResult = gson.fromJson(response.body(), type);
+                return ApiResult.success(pagedResult);
+            }
+
+            ApiError error = gson.fromJson(response.body(), ApiError.class);
+            return ApiResult.error(error.getMessage());
+        } catch (ConnectException e) {
+            return ApiResult.throwable(e);
+        } catch (Exception e) {
+            System.out.println(e.getClass().getName());
+            return ApiResult.error("Сетевая ошибка: " + e.getMessage());
+        }
+    }
+
+    public ApiResult<PagedResult<Collection>> getCollections(String token) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl + "/collections"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + token)
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                Type type = new TypeToken<PagedResult<Collection>>() {}.getType();
+                PagedResult<Collection> pagedResult = gson.fromJson(response.body(), type);
+                return ApiResult.success(pagedResult);
+            }
+
+            ApiError error = gson.fromJson(response.body(), ApiError.class);
+            return ApiResult.error(error.getMessage());
+        } catch (ConnectException e) {
+            return ApiResult.throwable(e);
+        } catch (Exception e) {
+            System.out.println(e.getClass().getName());
+            return ApiResult.error("Сетевая ошибка: " + e.getMessage());
+        }
+    }
+
+    public ApiResult<PagedResult<Hall>> getHalls(String token) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl + "/halls"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + token)
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                Type type = new TypeToken<PagedResult<Hall>>() {}.getType();
+                PagedResult<Hall> pagedResult = gson.fromJson(response.body(), type);
+                return ApiResult.success(pagedResult);
+            }
+
+            ApiError error = gson.fromJson(response.body(), ApiError.class);
+            return ApiResult.error(error.getMessage());
+        } catch (ConnectException e) {
+            return ApiResult.throwable(e);
+        } catch (Exception e) {
+            System.out.println(e.getClass().getName());
+            return ApiResult.error("Сетевая ошибка: " + e.getMessage());
+        }
+    }
+
+    public ApiResult<PagedResult<Author>> getAuthors(String token) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl + "/authors"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + token)
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                Type type = new TypeToken<PagedResult<Author>>() {}.getType();
+                PagedResult<Author> pagedResult = gson.fromJson(response.body(), type);
                 return ApiResult.success(pagedResult);
             }
 

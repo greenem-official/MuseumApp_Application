@@ -2,28 +2,39 @@ package org.daylight.museumapp.components.pages;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import org.daylight.museumapp.components.table.GenericListDetailView;
+import org.daylight.museumapp.dto.ApiResult;
+import org.daylight.museumapp.dto.PageRequest;
+import org.daylight.museumapp.dto.PagedResult;
+import org.daylight.museumapp.dto.tables.Author;
+import org.daylight.museumapp.dto.tables.Hall;
+import org.daylight.museumapp.services.TablesService;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 public class AuthorsPage {
-    private VBox content;
+    private StackPane content;
 
     public AuthorsPage() {
         initializePage();
     }
 
     private void initializePage() {
-        content = new VBox(16);
-        content.setPadding(new Insets(24));
+        content = new StackPane();
 
-        Label title = new Label("Страница авторов");
-        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
+        Function<PageRequest, CompletableFuture<ApiResult<PagedResult<Author>>>> fetcher = pageRequest -> {
+            return TablesService.getAuthors(); // pageRequest
+        };
 
-        Label placeholder = new Label("Здесь будет база данных авторов произведений");
+        GenericListDetailView<Author> view = new GenericListDetailView<>(Author.class, fetcher, false);
 
-        content.getChildren().addAll(title, placeholder);
+        content.getChildren().addAll(view);
     }
 
-    public VBox getContent() {
+    public StackPane getContent() {
         return content;
     }
 }
