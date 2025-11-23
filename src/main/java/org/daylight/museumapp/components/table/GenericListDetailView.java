@@ -1,7 +1,6 @@
 package org.daylight.museumapp.components.table;
 
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -14,8 +13,9 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
 import org.daylight.museumapp.dto.ApiResult;
-import org.daylight.museumapp.dto.PageRequest;
 import org.daylight.museumapp.dto.PagedResult;
+import org.daylight.museumapp.dto.filterrelated.PagedRequest;
+import org.daylight.museumapp.dto.filterrelated.SortRequest;
 import org.daylight.museumapp.dto.tables.Author;
 import org.daylight.museumapp.dto.tables.Collection;
 import org.daylight.museumapp.dto.tables.Hall;
@@ -33,7 +33,7 @@ import java.util.function.Function;
 public class GenericListDetailView<T> extends HBox {
 
     private final Class<T> type;
-    private final Function<PageRequest, CompletableFuture<ApiResult<PagedResult<T>>>> fetcher;
+    private final Function<PagedRequest, CompletableFuture<ApiResult<PagedResult<T>>>> fetcher;
 
     private final TableView<T> table = new TableView<>();
     private final VBox leftPane = new VBox(12);
@@ -57,7 +57,7 @@ public class GenericListDetailView<T> extends HBox {
     private PagedResult<T> lastPage;
 
     public GenericListDetailView(Class<T> type,
-                                 Function<PageRequest, CompletableFuture<ApiResult<PagedResult<T>>>> fetcher,
+                                 Function<PagedRequest, CompletableFuture<ApiResult<PagedResult<T>>>> fetcher,
                                  boolean adminMode) {
         this.type = type;
         this.fetcher = fetcher;
@@ -503,7 +503,7 @@ public class GenericListDetailView<T> extends HBox {
         this.pageSize = size;
         showLoading(true);
 
-        PageRequest req = new PageRequest(page, size, sort, asc ? "asc" : "desc", Collections.emptyMap());
+        PagedRequest req = new PagedRequest(page, size, new SortRequest(sort, asc ? "asc" : "desc"), List.of());
 
         CompletableFuture<ApiResult<PagedResult<T>>> future = fetcher.apply(req);
         future.thenAccept(result -> {

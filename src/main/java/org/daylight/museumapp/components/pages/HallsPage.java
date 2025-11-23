@@ -1,14 +1,10 @@
 package org.daylight.museumapp.components.pages;
 
-import javafx.geometry.Insets;
-import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import org.daylight.museumapp.components.table.GenericListDetailView;
 import org.daylight.museumapp.dto.ApiResult;
-import org.daylight.museumapp.dto.PageRequest;
 import org.daylight.museumapp.dto.PagedResult;
-import org.daylight.museumapp.dto.tables.Collection;
+import org.daylight.museumapp.dto.filterrelated.PagedRequest;
 import org.daylight.museumapp.dto.tables.Hall;
 import org.daylight.museumapp.services.TablesService;
 
@@ -25,7 +21,7 @@ public class HallsPage {
     private void initializePage() {
         content = new StackPane();
 
-        Function<PageRequest, CompletableFuture<ApiResult<PagedResult<Hall>>>> fetcher = pageRequest -> {
+        Function<PagedRequest, CompletableFuture<ApiResult<PagedResult<Hall>>>> fetcher = pageRequest -> {
             return TablesService.getHalls(); // pageRequest
         };
 

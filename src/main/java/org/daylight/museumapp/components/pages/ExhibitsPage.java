@@ -1,16 +1,15 @@
 package org.daylight.museumapp.components.pages;
 
-import javafx.geometry.Insets;
-import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import org.daylight.museumapp.components.table.GenericListDetailView;
 import org.daylight.museumapp.dto.ApiResult;
-import org.daylight.museumapp.dto.PageRequest;
 import org.daylight.museumapp.dto.PagedResult;
+import org.daylight.museumapp.dto.filterrelated.PagedRequest;
+import org.daylight.museumapp.dto.filterrelated.SortRequest;
 import org.daylight.museumapp.dto.tables.Item;
 import org.daylight.museumapp.services.TablesService;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -24,9 +23,7 @@ public class ExhibitsPage {
     private void initializePage() {
         content = new StackPane();
 
-        Function<PageRequest, CompletableFuture<ApiResult<PagedResult<Item>>>> fetcher = pageRequest -> {
-            return TablesService.getItems(); // pageRequest
-        };
+        Function<PagedRequest, CompletableFuture<ApiResult<PagedResult<Item>>>> fetcher = TablesService::getItems;
 
         GenericListDetailView<Item> view = new GenericListDetailView<>(Item.class, fetcher, false);
 

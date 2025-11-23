@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import org.daylight.museumapp.dto.*;
+import org.daylight.museumapp.dto.filterrelated.PagedRequest;
 import org.daylight.museumapp.dto.tables.Author;
 import org.daylight.museumapp.dto.tables.Collection;
 import org.daylight.museumapp.dto.tables.Hall;
@@ -126,7 +127,7 @@ public class ApiService {
 
             try {
                 ApiError error = gson.fromJson(response.body(), ApiError.class);
-                return ApiResult.error(error.getMessage());
+                return ApiResult.error(response.body().isBlank() ? "(no message)" : error.getMessage());
             } catch (Exception parseError) {
                 return ApiResult.error("Ошибка регистрации: " + response.statusCode());
             }
@@ -159,8 +160,7 @@ public class ApiService {
             }
 
             ApiError error = gson.fromJson(response.body(), ApiError.class);
-            return ApiResult.error(error.getMessage());
-
+            return ApiResult.error(response.body().isBlank() ? "(no message)" : error.getMessage());
         } catch (Exception e) {
             return ApiResult.error("Сетевая ошибка");
         }
@@ -185,7 +185,7 @@ public class ApiService {
             }
 
             ApiError error = gson.fromJson(response.body(), ApiError.class);
-            return ApiResult.error(error.getMessage());
+            return ApiResult.error(response.body().isBlank() ? "(no message)" : error.getMessage());
         } catch (ConnectException e) {
             return ApiResult.throwable(e);
         } catch (Exception e) {
@@ -194,13 +194,15 @@ public class ApiService {
         }
     }
 
-    public ApiResult<PagedResult<Item>> getItems(String token) {
+    public ApiResult<PagedResult<Item>> getItems(String token, PagedRequest pagedRequest) {
         try {
+            String json = mapper.writeValueAsString(pagedRequest);
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/items"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + token)
-                    .GET()
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -210,13 +212,14 @@ public class ApiService {
                 PagedResult<Item> pagedResult = gson.fromJson(response.body(), type);
                 return ApiResult.success(pagedResult);
             }
-
             ApiError error = gson.fromJson(response.body(), ApiError.class);
-            return ApiResult.error(error.getMessage());
+            return ApiResult.error(response.body().isBlank() ? "(no message)" : error.getMessage());
         } catch (ConnectException e) {
+            e.printStackTrace();
             return ApiResult.throwable(e);
         } catch (Exception e) {
-            System.out.println(e.getClass().getName());
+//            System.out.println(e.getClass().getName());
+            e.printStackTrace();
             return ApiResult.error("Сетевая ошибка: " + e.getMessage());
         }
     }
@@ -239,7 +242,7 @@ public class ApiService {
             }
 
             ApiError error = gson.fromJson(response.body(), ApiError.class);
-            return ApiResult.error(error.getMessage());
+            return ApiResult.error(response.body().isBlank() ? "(no message)" : error.getMessage());
         } catch (ConnectException e) {
             return ApiResult.throwable(e);
         } catch (Exception e) {
@@ -266,7 +269,7 @@ public class ApiService {
             }
 
             ApiError error = gson.fromJson(response.body(), ApiError.class);
-            return ApiResult.error(error.getMessage());
+            return ApiResult.error(response.body().isBlank() ? "(no message)" : error.getMessage());
         } catch (ConnectException e) {
             return ApiResult.throwable(e);
         } catch (Exception e) {
@@ -293,7 +296,7 @@ public class ApiService {
             }
 
             ApiError error = gson.fromJson(response.body(), ApiError.class);
-            return ApiResult.error(error.getMessage());
+            return ApiResult.error(response.body().isBlank() ? "(no message)" : error.getMessage());
         } catch (ConnectException e) {
             return ApiResult.throwable(e);
         } catch (Exception e) {
