@@ -4,9 +4,11 @@ import javafx.scene.layout.StackPane;
 import org.daylight.museumapp.components.table.GenericListDetailView;
 import org.daylight.museumapp.dto.ApiResult;
 import org.daylight.museumapp.dto.PagedResult;
+import org.daylight.museumapp.dto.UserRole;
 import org.daylight.museumapp.dto.filterrelated.PagedRequest;
 import org.daylight.museumapp.dto.filterrelated.SortRequest;
 import org.daylight.museumapp.dto.tables.Item;
+import org.daylight.museumapp.services.AuthService;
 import org.daylight.museumapp.services.TablesService;
 
 import java.util.List;
@@ -25,7 +27,9 @@ public class ExhibitsPage {
 
         Function<PagedRequest, CompletableFuture<ApiResult<PagedResult<Item>>>> fetcher = TablesService::getItems;
 
-        GenericListDetailView<Item> view = new GenericListDetailView<>(Item.class, fetcher, false);
+        boolean isAdmin = false;
+        if(AuthService.getInstance().isAuthenticated()) isAdmin = AuthService.getInstance().getCurrentUser().getRole() == UserRole.ADMIN;
+        GenericListDetailView<Item> view = new GenericListDetailView<>(Item.class, fetcher, isAdmin);
 
         content.getChildren().addAll(view);
     }

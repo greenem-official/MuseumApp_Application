@@ -4,8 +4,10 @@ import javafx.scene.layout.StackPane;
 import org.daylight.museumapp.components.table.GenericListDetailView;
 import org.daylight.museumapp.dto.ApiResult;
 import org.daylight.museumapp.dto.PagedResult;
+import org.daylight.museumapp.dto.UserRole;
 import org.daylight.museumapp.dto.filterrelated.PagedRequest;
 import org.daylight.museumapp.dto.tables.Collection;
+import org.daylight.museumapp.services.AuthService;
 import org.daylight.museumapp.services.TablesService;
 
 import java.util.concurrent.CompletableFuture;
@@ -23,7 +25,9 @@ public class CollectionsPage {
 
         Function<PagedRequest, CompletableFuture<ApiResult<PagedResult<Collection>>>> fetcher = TablesService::getCollections;
 
-        GenericListDetailView<Collection> view = new GenericListDetailView<>(Collection.class, fetcher, false);
+        boolean isAdmin = false;
+        if(AuthService.getInstance().isAuthenticated()) isAdmin = AuthService.getInstance().getCurrentUser().getRole() == UserRole.ADMIN;
+        GenericListDetailView<Collection> view = new GenericListDetailView<>(Collection.class, fetcher, isAdmin);
 
         content.getChildren().addAll(view);
     }
