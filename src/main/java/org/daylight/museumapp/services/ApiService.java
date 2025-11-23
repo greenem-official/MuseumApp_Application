@@ -224,13 +224,15 @@ public class ApiService {
         }
     }
 
-    public ApiResult<PagedResult<Collection>> getCollections(String token) {
+    public ApiResult<PagedResult<Collection>> getCollections(String token, PagedRequest pagedRequest) {
         try {
+            String json = mapper.writeValueAsString(pagedRequest);
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/collections"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + token)
-                    .GET()
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -251,13 +253,15 @@ public class ApiService {
         }
     }
 
-    public ApiResult<PagedResult<Hall>> getHalls(String token) {
+    public ApiResult<PagedResult<Hall>> getHalls(String token, PagedRequest pagedRequest) {
         try {
+            String json = mapper.writeValueAsString(pagedRequest);
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/halls"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + token)
-                    .GET()
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -278,13 +282,15 @@ public class ApiService {
         }
     }
 
-    public ApiResult<PagedResult<Author>> getAuthors(String token) {
+    public ApiResult<PagedResult<Author>> getAuthors(String token, PagedRequest pagedRequest) {
         try {
+            String json = mapper.writeValueAsString(pagedRequest);
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/authors"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + token)
-                    .GET()
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());

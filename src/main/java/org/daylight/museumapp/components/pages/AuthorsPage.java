@@ -21,9 +21,7 @@ public class AuthorsPage {
     private void initializePage() {
         content = new StackPane();
 
-        Function<PagedRequest, CompletableFuture<ApiResult<PagedResult<Author>>>> fetcher = pageRequest -> {
-            return TablesService.getAuthors(); // pageRequest
-        };
+        Function<PagedRequest, CompletableFuture<ApiResult<PagedResult<Author>>>> fetcher = TablesService::getAuthors;
 
         GenericListDetailView<Author> view = new GenericListDetailView<>(Author.class, fetcher, false);
 

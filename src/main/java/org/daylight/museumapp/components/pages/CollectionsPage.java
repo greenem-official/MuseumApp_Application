@@ -21,9 +21,7 @@ public class CollectionsPage {
     private void initializePage() {
         content = new StackPane();
 
-        Function<PagedRequest, CompletableFuture<ApiResult<PagedResult<Collection>>>> fetcher = pageRequest -> {
-            return TablesService.getCollections(); // pageRequest
-        };
+        Function<PagedRequest, CompletableFuture<ApiResult<PagedResult<Collection>>>> fetcher = TablesService::getCollections;
 
         GenericListDetailView<Collection> view = new GenericListDetailView<>(Collection.class, fetcher, false);
 

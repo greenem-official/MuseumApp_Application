@@ -21,9 +21,7 @@ public class HallsPage {
     private void initializePage() {
         content = new StackPane();
 
-        Function<PagedRequest, CompletableFuture<ApiResult<PagedResult<Hall>>>> fetcher = pageRequest -> {
-            return TablesService.getHalls(); // pageRequest
-        };
+        Function<PagedRequest, CompletableFuture<ApiResult<PagedResult<Hall>>>> fetcher = TablesService::getHalls;
 
         GenericListDetailView<Hall> view = new GenericListDetailView<>(Hall.class, fetcher, false);
 

@@ -17,21 +17,21 @@ public class TablesService {
         );
     }
 
-    public static CompletableFuture<ApiResult<PagedResult<Collection>>> getCollections() {
+    public static CompletableFuture<ApiResult<PagedResult<Collection>>> getCollections(PagedRequest pagedRequest) {
         return CompletableFuture.supplyAsync(() ->
-                ApiService.getInstance().getCollections(AuthService.getInstance().getCurrentUser().getToken())
+                ApiService.getInstance().getCollections(AuthService.getInstance().getCurrentUser().getToken(), pagedRequest)
         );
     }
 
-    public static CompletableFuture<ApiResult<PagedResult<Hall>>> getHalls() {
+    public static CompletableFuture<ApiResult<PagedResult<Hall>>> getHalls(PagedRequest pagedRequest) {
         return CompletableFuture.supplyAsync(() ->
-                ApiService.getInstance().getHalls(AuthService.getInstance().getCurrentUser().getToken())
+                ApiService.getInstance().getHalls(AuthService.getInstance().getCurrentUser().getToken(), pagedRequest)
         );
     }
 
-    public static CompletableFuture<ApiResult<PagedResult<Author>>> getAuthors() {
+    public static CompletableFuture<ApiResult<PagedResult<Author>>> getAuthors(PagedRequest pagedRequest) {
         return CompletableFuture.supplyAsync(() ->
-                ApiService.getInstance().getAuthors(AuthService.getInstance().getCurrentUser().getToken())
+                ApiService.getInstance().getAuthors(AuthService.getInstance().getCurrentUser().getToken(), pagedRequest)
         );
     }
 }
