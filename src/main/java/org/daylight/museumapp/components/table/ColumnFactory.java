@@ -4,11 +4,14 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import org.daylight.museumapp.components.annotations.ColumnMeta;
+import org.daylight.museumapp.dto.filterrelated.FilterRule;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -46,7 +49,7 @@ public class ColumnFactory<T> {
             col.getStyleClass().add("museum-ld-col");
             col.setText(prettyColumnName(name));
 
-            HBox headerBox = createColumnHeader(name, col);
+            HBox headerBox = createColumnHeader(field, name, col);
             col.setGraphic(headerBox);
 
             if (name.equalsIgnoreCase("id")) {
@@ -139,7 +142,7 @@ public class ColumnFactory<T> {
         return fields;
     }
 
-    private HBox createColumnHeader(String fieldName, TableColumn<T, ?> col) {
+    private HBox createColumnHeader(Field field, String fieldName, TableColumn<T, ?> col) {
         Label lbl = new Label(prettyColumnName(fieldName));
         lbl.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(lbl, Priority.ALWAYS);
@@ -158,22 +161,100 @@ public class ColumnFactory<T> {
         Button filterBtn = new Button("☰");
         filterBtn.setCursor(Cursor.HAND);
         filterBtn.getStyleClass().add("museum-ld-nav-button");
-        filterBtn.setOnAction(evt -> {
-            Dialog<Void> dlg = new Dialog<>();
-            dlg.setTitle("Фильтр — " + prettyColumnName(fieldName));
-            dlg.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
-            VBox content = new VBox(8, new Label("Плейсхолдер фильтра для поля \"" + fieldName + "\""),
-                    new Label("Здесь можно будет настроить фильтрацию (равно, содержит, диапазон и т.д.)"));
-            content.setPadding(new Insets(12));
-            dlg.getDialogPane().setContent(content);
-            dlg.showAndWait();
-        });
+
+        filterBtn.setOnAction(evt -> showFilterDialog(fieldName, field));
 
         HBox header = new HBox(6, lbl, sortBtn, filterBtn);
         header.setAlignment(Pos.CENTER_LEFT);
         header.setPadding(new Insets(6, 2, 6, 2));
         return header;
     }
+
+    private void showFilterDialog(String fieldName, Field field) {
+        Dialog<Void> dlg = new Dialog<>();
+        dlg.setTitle("Фильтр — " + prettyColumnName(fieldName));
+        dlg.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        dlg.setResizable(true);
+
+        VBox root = new VBox(12);
+        root.setPadding(new Insets(12));
+
+        Label header = new Label("Фильтры для поля: " + prettyColumnName(fieldName));
+
+        ComboBox<Class<? extends FilterRule>> filterSelector = new ComboBox<>();
+        filterSelector.setPrefWidth(250);
+
+        Button addBtn = new Button("Добавить");
+
+        VBox filtersContainer = new VBox(8);
+        filtersContainer.setStyle("-fx-border-color: #ddd; -fx-padding: 8;");
+
+        // Загружаем фильтры из аннотации
+        ColumnMeta meta = field.getAnnotation(ColumnMeta.class);
+        if (meta != null) {
+            filterSelector.getItems().addAll(meta.filters());
+        }
+
+        // человекочитаемые названия
+        filterSelector.setCellFactory(cb -> new ListCell<>() {
+            @Override
+            protected void updateItem(Class<? extends FilterRule> item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    try {
+                        setText(item.getDeclaredConstructor().newInstance().getTitle());
+                    } catch (Exception e) {
+                        setText(item.getSimpleName());
+                    }
+                }
+            }
+        });
+        filterSelector.setButtonCell(filterSelector.getCellFactory().call(null));
+
+        addBtn.setOnAction(e -> {
+            Class<? extends FilterRule<?>> clazz = (Class<? extends FilterRule<?>>) filterSelector.getValue();
+            if (clazz == null) return;
+
+            try {
+                FilterRule<?> filter = clazz.getDeclaredConstructor().newInstance();
+                filter.setField(fieldName);
+
+                HBox filterRow = new HBox(8);
+                filterRow.setAlignment(Pos.CENTER_LEFT);
+
+                Node editor = filter.createEditor();
+
+                Button removeBtn = new Button("✕");
+                removeBtn.setOnAction(ev -> filtersContainer.getChildren().remove(filterRow));
+
+                filterRow.getChildren().addAll(
+                        new Label(filter.getTitle() + ":"),
+                        editor,
+                        removeBtn
+                );
+
+                filtersContainer.getChildren().add(filterRow);
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        HBox topControls = new HBox(10, filterSelector, addBtn);
+
+        root.getChildren().addAll(
+                header,
+                topControls,
+                new Separator(),
+                filtersContainer
+        );
+
+        dlg.getDialogPane().setContent(root);
+        dlg.showAndWait();
+    }
+
 
     private Object safeGetProperty(T row, Field field) {
         try {

@@ -4,7 +4,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,31 +13,31 @@ import java.util.function.Predicate;
 
 @Getter
 @NoArgsConstructor
-public class ContainsFilter implements FilterRule<String> {
+public class EndsWithFilter implements FilterRule<String> {
     @Setter
     private String field;
     @Setter
     private String value;
 
-    public ContainsFilter(String field) {
+    public EndsWithFilter(String field) {
         this.field = field;
     }
 
     @Override
     public String getTitle() {
-        return "Содержит";
+        return "Заканчивается на";
     }
 
     @Override
     public Predicate<String> buildPredicate() {
-        return s -> s != null && s.contains(value);
+        return s -> s != null && s.endsWith(value);
     }
 
     @Override
     public Node createEditor() {
         HBox box = new HBox(8);
         box.getChildren().addAll(
-                new Label(" содержит "),
+                new Label(" заканчивается на "),
                 new TextField()
         );
         return box;
