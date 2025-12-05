@@ -7,11 +7,13 @@ import javafx.scene.layout.HBox;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.daylight.museumapp.dto.filterrelated.FilterRule;
 
 import java.util.function.Predicate;
 
 @Getter
+@ToString
 @NoArgsConstructor
 public class EqualsFilter<T> implements FilterRule<T> {
     @Setter

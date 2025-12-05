@@ -1,5 +1,7 @@
 package org.daylight.museumapp.components.table;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -16,9 +18,7 @@ import org.daylight.museumapp.dto.filterrelated.FilterRule;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -32,6 +32,8 @@ public class ColumnFactory<T> {
     private final BiConsumer<String, Boolean> onSortChanged;
     private final Consumer<Pair<String, List<FilterRule<?>>>> onFilterChanged;
     private final boolean adminMode;
+    private final Map<String, Button> sortButtons = new HashMap<>();
+    private String currentSortedField = null; // not main source
 
     public ColumnFactory(Class<T> type, Consumer<T> onOpenDetail, BiConsumer<String, Boolean> onSortChanged, Consumer<Pair<String, List<FilterRule<?>>>> onFilterChanged, boolean adminMode) {
         this.type = type;
@@ -150,27 +152,59 @@ public class ColumnFactory<T> {
         lbl.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(lbl, Priority.ALWAYS);
 
+        // состояние сортировки данной колонки
+        final BooleanProperty ascending = new SimpleBooleanProperty(true);
+
         Button sortBtn = new Button("↕");
         sortBtn.setCursor(Cursor.HAND);
         sortBtn.getStyleClass().add("museum-ld-nav-button");
 
+        // запоминаем кнопку для этой колонки
+        sortButtons.put(fieldName, sortBtn);
+
         sortBtn.setOnAction(evt -> {
-            // simple toggle behaviour, inform owner
-            boolean asc = true;
-            // if user clicks repeatedly we invert via callback (owner keeps state)
-            onSortChanged.accept(fieldName, asc);
+            if (!fieldName.equals(currentSortedField)) {
+                resetAllSortButtonsExcept(fieldName);
+                ascending.set(true); // новый столбец всегда начинает с ASC
+            } else {
+                // иначе — просто переворачиваем сортировку
+                ascending.set(!ascending.get());
+            }
+
+            currentSortedField = fieldName;
+
+            sortBtn.setText(ascending.get() ? "↑" : "↓");
+
+            onSortChanged.accept(fieldName, ascending.get());
         });
 
         Button filterBtn = new Button("☰");
         filterBtn.setCursor(Cursor.HAND);
         filterBtn.getStyleClass().add("museum-ld-nav-button");
-
         filterBtn.setOnAction(evt -> showFilterDialog(field, fieldName));
 
         HBox header = new HBox(6, lbl, sortBtn, filterBtn);
         header.setAlignment(Pos.CENTER_LEFT);
         header.setPadding(new Insets(6, 2, 6, 2));
         return header;
+    }
+
+    private void resetAllSortButtonsExcept(String exceptField) {
+        for (var entry : sortButtons.entrySet()) {
+            if (!entry.getKey().equals(exceptField)) {
+                entry.getValue().setText("↕");
+            }
+        }
+    }
+
+    public void setSortState(String fieldName, boolean asc) {
+        resetAllSortButtonsExcept(fieldName);
+
+        Button btn = sortButtons.get(fieldName);
+        if (btn != null) {
+            btn.setText(asc ? "↑" : "↓");
+            currentSortedField = fieldName;
+        }
     }
 
     private void showFilterDialog(Field field, String fieldName) {

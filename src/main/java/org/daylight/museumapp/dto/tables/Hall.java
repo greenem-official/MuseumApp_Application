@@ -16,6 +16,10 @@ public class Hall {
     )
     private String name;
 
+    @ColumnMeta(
+            title = "Этаж",
+            filters = { ContainsFilter.class, StartsWithFilter.class, EndsWithFilter.class } // basic
+    )
     private Integer floor;
 
     @ColumnMeta(

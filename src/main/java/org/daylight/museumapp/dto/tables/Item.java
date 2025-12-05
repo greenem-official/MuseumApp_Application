@@ -26,8 +26,28 @@ public class Item {
             filters = { RangeFilter.class }
     )
     private Integer year;
+
+    @ColumnMeta(
+            title = "Состояние",
+            filters = { ContainsFilter.class, StartsWithFilter.class, EndsWithFilter.class } // basic
+    )
     private String condition;
+
+    @ColumnMeta(
+            title = "Коллекция",
+            filters = { ContainsFilter.class, StartsWithFilter.class, EndsWithFilter.class } // basic
+    )
     private Collection collection;
+
+    @ColumnMeta(
+            title = "Автор",
+            filters = { ContainsFilter.class, StartsWithFilter.class, EndsWithFilter.class } // basic
+    )
     private Author author;
+
+    @ColumnMeta(
+            title = "Зал",
+            filters = { ContainsFilter.class, StartsWithFilter.class, EndsWithFilter.class } // basic
+    )
     private Hall hall;
 }

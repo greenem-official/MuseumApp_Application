@@ -27,6 +27,10 @@ public class Collection {
     )
     private String description;
 
+    @ColumnMeta(
+            title = "Куратор",
+            filters = { ContainsFilter.class, StartsWithFilter.class, EndsWithFilter.class } // basic
+    )
     private User curator;
 
     @ColumnMeta(

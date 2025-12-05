@@ -1,5 +1,6 @@
 package org.daylight.museumapp.dto.filterrelated.specific;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -7,21 +8,24 @@ import javafx.scene.layout.HBox;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.daylight.museumapp.dto.filterrelated.FilterRule;
 
 import java.util.function.Predicate;
 
 @Getter
+@ToString
 @NoArgsConstructor
 public class RangeFilter implements FilterRule<Number> {
-
     @Setter
     private String field;
 
     private Double min;
     private Double max;
 
+    @JsonIgnore
     private TextField minField;
+    @JsonIgnore
     private TextField maxField;
 
     public RangeFilter(String field) {

@@ -54,9 +54,8 @@ public class GenericListDetailView<T> extends HBox {
 
     private int page = 0;
     private int pageSize = 10;
-    private String sortField = "id";
-    private boolean sortAsc = true;
-    private boolean adminMode = false;
+    private SortRequest sort;
+//    private boolean adminMode = false;
     private String titleName;
     private Map<String, List<FilterRule<?>>> filterRules;
 
@@ -67,7 +66,7 @@ public class GenericListDetailView<T> extends HBox {
                                  boolean adminMode, String titleName) {
         this.type = type;
         this.fetcher = fetcher;
-        this.adminMode = adminMode;
+//        this.adminMode = adminMode;
         this.titleName = titleName;
         this.paginationBar = new PaginationBar(this::goToPage);
 
@@ -153,8 +152,7 @@ public class GenericListDetailView<T> extends HBox {
     }
 
     private void onSortChanged(String field, boolean asc) {
-        this.sortField = field;
-        this.sortAsc = asc;
+        this.sort = new SortRequest(field, asc ? "asc" : "desc");
         goToPage(0);
     }
 
@@ -200,15 +198,21 @@ public class GenericListDetailView<T> extends HBox {
 
     // ----- networking -----
     public void refresh() {
-        loadPage(page, pageSize, sortField, sortAsc);
+        loadPage(page, pageSize, sort, filterRules);
     }
 
-    private void loadPage(int page, int size, String sort, boolean asc) {
+    private void loadPage(int page, int size, SortRequest sort, Map<String, List<FilterRule<?>>> filters) {
         this.page = page;
         this.pageSize = size;
         showLoading(true);
 
-        PagedRequest req = new PagedRequest(page, size, new SortRequest(sort, asc ? "asc" : "desc"), List.of());
+        List<FilterRule<?>> filtersCombined = new ArrayList<>(); // original map needs keys only to clear old lists together
+        for(Map.Entry<String, List<FilterRule<?>>> entry : filters.entrySet()) {
+            filtersCombined.addAll(entry.getValue());
+        }
+
+        PagedRequest req = new PagedRequest(page, size, sort, filtersCombined);
+        System.out.println(req);
 
         CompletableFuture<ApiResult<PagedResult<T>>> future = fetcher.apply(req);
         future.thenAccept(result -> {
@@ -253,7 +257,7 @@ public class GenericListDetailView<T> extends HBox {
     public void goToPage(int p) {
         if (p < 0) p = 0;
         this.page = p;
-        loadPage(page, pageSize, sortField, sortAsc);
+        loadPage(page, pageSize, sort, filterRules);
     }
 
     public void setPageSize(int size) {
@@ -262,7 +266,7 @@ public class GenericListDetailView<T> extends HBox {
     }
 
     public void setAdminMode(boolean admin) {
-        this.adminMode = admin;
+//        this.adminMode = admin;
         ColumnFactory<T> cf = new ColumnFactory<>(type, this::openDetail, this::onSortChanged, this::onFiltersChanged, admin);
         cf.buildColumnsInto(table);
     }
