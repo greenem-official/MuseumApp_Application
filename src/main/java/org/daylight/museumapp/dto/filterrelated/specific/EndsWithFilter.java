@@ -14,10 +14,13 @@ import java.util.function.Predicate;
 @Getter
 @NoArgsConstructor
 public class EndsWithFilter implements FilterRule<String> {
+
     @Setter
     private String field;
-    @Setter
+
     private String value;
+
+    private TextField input;
 
     public EndsWithFilter(String field) {
         this.field = field;
@@ -30,16 +33,24 @@ public class EndsWithFilter implements FilterRule<String> {
 
     @Override
     public Predicate<String> buildPredicate() {
-        return s -> s != null && s.endsWith(value);
+        if (value == null || value.isBlank()) {
+            return s -> true; // пустой фильтр — не фильтруем
+        }
+
+        String v = value.toLowerCase();
+
+        return s -> s != null && s.toLowerCase().endsWith(v);
     }
 
     @Override
     public Node createEditor() {
-        HBox box = new HBox(8);
-        box.getChildren().addAll(
-                new Label(" заканчивается на "),
-                new TextField()
-        );
-        return box;
+        input = new TextField();
+        return new HBox(8, input);
+    }
+
+    @Override
+    public void extractValueFromEditor() {
+        value = input.getText() == null ? "" : input.getText().trim();
     }
 }
+

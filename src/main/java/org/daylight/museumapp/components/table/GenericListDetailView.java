@@ -14,10 +14,12 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import javafx.util.Pair;
 import org.daylight.museumapp.components.common.SeparateStyles;
 import org.daylight.museumapp.components.loading.LoadingDots;
 import org.daylight.museumapp.dto.ApiResult;
 import org.daylight.museumapp.dto.PagedResult;
+import org.daylight.museumapp.dto.filterrelated.FilterRule;
 import org.daylight.museumapp.dto.filterrelated.PagedRequest;
 import org.daylight.museumapp.dto.filterrelated.SortRequest;
 import org.daylight.museumapp.dto.tables.Author;
@@ -56,6 +58,7 @@ public class GenericListDetailView<T> extends HBox {
     private boolean sortAsc = true;
     private boolean adminMode = false;
     private String titleName;
+    private Map<String, List<FilterRule<?>>> filterRules;
 
     private PagedResult<T> lastPage;
 
@@ -70,11 +73,13 @@ public class GenericListDetailView<T> extends HBox {
 
         this.getStylesheets().addAll(SeparateStyles.tablesCss);
 
+        this.filterRules = new HashMap<>();
         initialize();
 
         ColumnFactory<T> cf = new ColumnFactory<>(type,
                 this::openDetail,
                 this::onSortChanged,
+                this::onFiltersChanged,
                 adminMode);
         cf.buildColumnsInto(table);
 
@@ -151,6 +156,10 @@ public class GenericListDetailView<T> extends HBox {
         this.sortField = field;
         this.sortAsc = asc;
         goToPage(0);
+    }
+
+    private void onFiltersChanged(Pair<String, List<FilterRule<?>>> filters) {
+        this.filterRules.put(filters.getKey(), filters.getValue());
     }
 
     // ----- detail pane -----
@@ -254,7 +263,7 @@ public class GenericListDetailView<T> extends HBox {
 
     public void setAdminMode(boolean admin) {
         this.adminMode = admin;
-        ColumnFactory<T> cf = new ColumnFactory<>(type, this::openDetail, this::onSortChanged, admin);
+        ColumnFactory<T> cf = new ColumnFactory<>(type, this::openDetail, this::onSortChanged, this::onFiltersChanged, admin);
         cf.buildColumnsInto(table);
     }
 }

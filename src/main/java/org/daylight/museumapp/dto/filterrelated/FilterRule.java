@@ -24,4 +24,5 @@ public interface FilterRule<T> {
     String getTitle();
     Predicate<T> buildPredicate();
     Node createEditor();
+    void extractValueFromEditor();
 }

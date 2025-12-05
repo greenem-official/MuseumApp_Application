@@ -14,10 +14,13 @@ import java.util.function.Predicate;
 @Getter
 @NoArgsConstructor
 public class StartsWithFilter implements FilterRule<String> {
+
     @Setter
     private String field;
-    @Setter
+
     private String value;
+
+    private TextField input;
 
     public StartsWithFilter(String field) {
         this.field = field;
@@ -30,16 +33,28 @@ public class StartsWithFilter implements FilterRule<String> {
 
     @Override
     public Predicate<String> buildPredicate() {
-        return s -> s != null && s.startsWith(value);
+        // пустой фильтр → ничего не фильтруем
+        if (value == null || value.isBlank()) {
+            return s -> true;
+        }
+
+        String v = value.toLowerCase();
+
+        return s -> s != null && s.toLowerCase().startsWith(v);
     }
 
     @Override
     public Node createEditor() {
-        HBox box = new HBox(8);
-        box.getChildren().addAll(
-                new Label(" начинается с "),
-                new TextField()
+        input = new TextField();
+        input.setPromptText("начинается с…");
+
+        return new HBox(8,
+                input
         );
-        return box;
+    }
+
+    @Override
+    public void extractValueFromEditor() {
+        value = input.getText() == null ? "" : input.getText().trim();
     }
 }

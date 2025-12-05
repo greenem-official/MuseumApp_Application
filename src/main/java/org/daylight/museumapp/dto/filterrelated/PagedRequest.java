@@ -13,5 +13,5 @@ public class PagedRequest {
     private int page;
     private int size;
     private SortRequest sort;
-    private List<FilterRule> filters;
+    private List<FilterRule<?>> filters;
 }

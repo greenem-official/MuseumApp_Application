@@ -14,12 +14,15 @@ import java.util.function.Predicate;
 @Getter
 @NoArgsConstructor
 public class RangeFilter implements FilterRule<Number> {
+
     @Setter
     private String field;
-    @Setter
-    private Number min;
-    @Setter
-    private Number max;
+
+    private Double min;
+    private Double max;
+
+    private TextField minField;
+    private TextField maxField;
 
     public RangeFilter(String field) {
         this.field = field;
@@ -32,17 +35,53 @@ public class RangeFilter implements FilterRule<Number> {
 
     @Override
     public Predicate<Number> buildPredicate() {
-        return n -> n.doubleValue() >= min.doubleValue() && n.doubleValue() <= max.doubleValue();
+
+        // Если оба поля пусты — не фильтруем ничего
+        if (min == null && max == null) {
+            return n -> true;
+        }
+
+        return n -> {
+            if (n == null) return false;
+            double v = n.doubleValue();
+
+            if (min != null && v < min) return false;
+            if (max != null && v > max) return false;
+
+            return true;
+        };
     }
 
     @Override
     public Node createEditor() {
-        HBox box = new HBox(8);
-        box.getChildren().addAll(
-                new TextField(),
-                new Label(" до "),
-                new TextField()
+        minField = new TextField();
+        maxField = new TextField();
+
+        minField.setPromptText("от");
+        maxField.setPromptText("до");
+
+        return new HBox(8,
+                minField,
+                new Label("—"),
+                maxField
         );
-        return box;
+    }
+
+    @Override
+    public void extractValueFromEditor() {
+        String minText = minField.getText().trim();
+        String maxText = maxField.getText().trim();
+
+        min = parseOrNull(minText);
+        max = parseOrNull(maxText);
+    }
+
+    private Double parseOrNull(String txt) {
+        if (txt == null || txt.isBlank()) return null;
+        try {
+            return Double.parseDouble(txt.replace(",", "."));
+        } catch (NumberFormatException e) {
+            return null; // или можно бросить исключение, если нужно
+        }
     }
 }

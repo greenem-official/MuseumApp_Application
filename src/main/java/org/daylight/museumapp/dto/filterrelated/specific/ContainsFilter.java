@@ -17,8 +17,10 @@ import java.util.function.Predicate;
 public class ContainsFilter implements FilterRule<String> {
     @Setter
     private String field;
-    @Setter
     private String value;
+
+    private HBox editorRoot;
+    private TextField input;
 
     public ContainsFilter(String field) {
         this.field = field;
@@ -36,11 +38,15 @@ public class ContainsFilter implements FilterRule<String> {
 
     @Override
     public Node createEditor() {
-        HBox box = new HBox(8);
-        box.getChildren().addAll(
-                new Label(" содержит "),
-                new TextField()
+        input = new TextField();
+        editorRoot = new HBox(8,
+                input
         );
-        return box;
+        return editorRoot;
+    }
+
+    @Override
+    public void extractValueFromEditor() {
+        value = input.getText();
     }
 }

@@ -41,4 +41,9 @@ public class EqualsFilter<T> implements FilterRule<T> {
         );
         return box;
     }
+
+    @Override
+    public void extractValueFromEditor() {
+
+    }
 }
