@@ -11,10 +11,12 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.util.Callback;
 import javafx.util.Pair;
 import org.daylight.museumapp.components.annotations.ColumnMeta;
 import org.daylight.museumapp.dto.filterrelated.FilterRule;
+import org.daylight.museumapp.util.Icons;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -109,10 +111,13 @@ public class ColumnFactory<T> {
             actions.setMinWidth(140);
             actions.setCellFactory(col -> new TableCell<>() {
                 private final HBox box = new HBox(8);
-                private final Button edit = new Button("Edit");
-                private final Button del = new Button("Del");
+                private final Button edit = new Button(Icons.EDIT);
+                private final Button del = new Button(Icons.DELETE);
                 {
+                    Font btnFont = Font.font("Segoe UI Emoji", 16);
                     box.setPadding(new Insets(6));
+                    edit.setFont(btnFont);
+                    del.setFont(btnFont);
                     box.getChildren().addAll(edit, del);
                     edit.setOnAction(e -> {
                         T item = getTableView().getItems().get(getIndex());

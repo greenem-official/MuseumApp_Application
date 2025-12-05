@@ -24,7 +24,7 @@ public class FilterDialog {
         this.fieldName = fieldName;
     }
 
-    public List<FilterRule<?>> show() {
+    public List<FilterRule<?>> show() { // List<FilterRule<?>> previousFilters
         Dialog<List<FilterRule<?>>> dlg = new Dialog<>();
         dlg.setTitle("Фильтр — " + prettyColumnName(fieldName));
         dlg.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.APPLY);
@@ -76,7 +76,7 @@ public class FilterDialog {
                 FilterRule<?> filter = clazz.getDeclaredConstructor().newInstance();
                 filter.setField(fieldName);
 
-                activeFilters.add(filter); // ← СОХРАНЯЕМ
+                activeFilters.add(filter);
 
                 HBox row = new HBox(8);
                 row.setAlignment(Pos.CENTER_LEFT);
@@ -115,7 +115,6 @@ public class FilterDialog {
 
         dlg.setResultConverter(btn -> {
             if (btn == ButtonType.APPLY) {
-                // соберём данные всех фильтров (они сами знают свои поля)
                 activeFilters.forEach(FilterRule::extractValueFromEditor);
                 return activeFilters;
             }

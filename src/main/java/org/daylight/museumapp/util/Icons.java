@@ -11,4 +11,6 @@ public class Icons {
     public static final String DOOR_OPEN = "🚪";
     public static final String USERS = "👥";
     public static final String MUSEUM = "🏛️";
+    public static final String EDIT = "\uD83D\uDCDD";
+    public static final String DELETE = "✖";
 }
