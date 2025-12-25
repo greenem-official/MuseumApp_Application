@@ -49,7 +49,7 @@ dependencies {
         exclude(group = "org.openjfx")
     }
     implementation("com.google.code.gson:gson:2.13.2")
-    compileOnly("org.projectlombok:lombok:1.18.42")
+    implementation("org.projectlombok:lombok:1.18.42")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.20.1")
     annotationProcessor("org.projectlombok:lombok:1.18.42")
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")

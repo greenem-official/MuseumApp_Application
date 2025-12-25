@@ -81,6 +81,7 @@ public class NavigationService {
             case "/collections" -> new CollectionsPage().getContent();
             case "/halls" -> new HallsPage().getContent();
             case "/authors" -> new AuthorsPage().getContent();
+            case "/stats" -> new StatisticsPage().getContent();
             case "/account" -> new AccountPage().getContent();
             default -> new HomePage().getContent();
         };
