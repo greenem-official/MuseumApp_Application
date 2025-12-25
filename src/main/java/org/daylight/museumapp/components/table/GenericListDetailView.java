@@ -112,7 +112,20 @@ public class GenericListDetailView<T> extends HBox {
 
         topControls.getChildren().addAll(title, spacer, new Label("Строк/страница:"), pageSizeBox, refreshButton);
 
-        leftPane.getChildren().addAll(topControls, table, paginationBar);
+        leftPane.getChildren().addAll(topControls, table);
+
+        if (adminMode) {
+            Button addNewBtn = new Button("Добавить");
+            addNewBtn.setOnMouseClicked(mouseEvent -> {
+//                showAddDialogue();
+            });
+
+            leftPane.getChildren().addAll(addNewBtn);
+        }
+
+        leftPane.getChildren().addAll(paginationBar);
+
+
         leftPane.getStyleClass().add("museum-ld-left");
         leftPane.setPrefWidth(700);
         VBox.setVgrow(table, Priority.ALWAYS);

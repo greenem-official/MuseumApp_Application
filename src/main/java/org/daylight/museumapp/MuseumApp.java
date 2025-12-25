@@ -17,7 +17,6 @@ import org.daylight.museumapp.services.AuthService;
 import org.daylight.museumapp.services.NotificationService;
 
 import java.net.ConnectException;
-import java.util.Objects;
 import java.util.logging.Logger;
 
 public class MuseumApp extends Application {
@@ -61,7 +60,8 @@ public class MuseumApp extends Application {
             String cssPath = getClass().getResource("/styles/museum-light.css").toExternalForm();
             String notificationsCss = getClass().getResource("/styles/notifications.css").toExternalForm();
             String accountCss = getClass().getResource("/styles/account.css").toExternalForm();
-            scene.getStylesheets().addAll(cssPath, notificationsCss, accountCss);
+            String statisticsCss = getClass().getResource("/styles/statistics.css").toExternalForm();
+            scene.getStylesheets().addAll(cssPath, notificationsCss, accountCss, statisticsCss);
         } catch (Exception e) {
             System.err.println("CSS not found, using default styles");
         }

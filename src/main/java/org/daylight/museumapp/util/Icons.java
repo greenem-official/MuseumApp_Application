@@ -13,4 +13,5 @@ public class Icons {
     public static final String MUSEUM = "🏛️";
     public static final String EDIT = "\uD83D\uDCDD";
     public static final String DELETE = "✖";
+    public static final String STATS = "\uD83D\uDCC8";
 }

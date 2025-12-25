@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import org.daylight.museumapp.components.common.GlobalHooks;
+import org.daylight.museumapp.dto.UserRole;
 import org.daylight.museumapp.model.NavigationItem;
 import org.daylight.museumapp.services.AuthService;
 import org.daylight.museumapp.services.NavigationService;
@@ -72,8 +73,9 @@ public class Sidebar {
         Button collectionsPageButton = createNavButton(new NavigationItem("Коллекции", "/collections", Icons.COLLECTIONS), null);
         Button hallsPageButton = createNavButton(new NavigationItem("Залы", "/halls", Icons.HALLS), null);
         Button authorsPageButton = createNavButton(new NavigationItem("Авторы", "/authors", Icons.AUTHORS), null);
+        Button statysticsPageButton = createNavButton(new NavigationItem("Статистика", "/stats", Icons.STATS), null);
 
-        menu.getChildren().addAll(homePageButton, exhibitsPageButton, collectionsPageButton, hallsPageButton, authorsPageButton);
+        menu.getChildren().addAll(homePageButton, exhibitsPageButton, collectionsPageButton, hallsPageButton, authorsPageButton, statysticsPageButton);
         homePageButton.getStyleClass().add("nav-button-active");
 
         GlobalHooks.getInstance().sidebarOnAuthStateChange = () -> {
@@ -82,6 +84,7 @@ public class Sidebar {
             collectionsPageButton.setVisible(authenticated);
             hallsPageButton.setVisible(authenticated);
             authorsPageButton.setVisible(authenticated);
+            statysticsPageButton.setVisible(authenticated && AuthService.getInstance().getCurrentUser().getRole() == UserRole.ADMIN);
         };
 
         GlobalHooks.getInstance().sidebarOnAuthStateChange.run();
