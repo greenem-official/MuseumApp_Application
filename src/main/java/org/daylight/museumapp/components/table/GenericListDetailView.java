@@ -55,7 +55,7 @@ public class GenericListDetailView<T> extends HBox {
     private int page = 0;
     private int pageSize = 10;
     private SortRequest sort;
-//    private boolean adminMode = false;
+    private boolean adminMode = false;
     private String titleName;
     private Map<String, List<FilterRule<?>>> filterRules;
 
@@ -66,7 +66,7 @@ public class GenericListDetailView<T> extends HBox {
                                  boolean adminMode, String titleName) {
         this.type = type;
         this.fetcher = fetcher;
-//        this.adminMode = adminMode;
+        this.adminMode = adminMode;
         this.titleName = titleName;
         this.paginationBar = new PaginationBar(this::goToPage);
 
