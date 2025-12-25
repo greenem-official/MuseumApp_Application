@@ -7,10 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import org.daylight.museumapp.dto.*;
 import org.daylight.museumapp.dto.filterrelated.PagedRequest;
-import org.daylight.museumapp.dto.tables.Author;
-import org.daylight.museumapp.dto.tables.Collection;
-import org.daylight.museumapp.dto.tables.Hall;
-import org.daylight.museumapp.dto.tables.Item;
+import org.daylight.museumapp.dto.tables.*;
 import org.daylight.museumapp.model.StatCard;
 import org.daylight.museumapp.util.Icons;
 import org.daylight.museumapp.util.LocalDateAdapter;
@@ -298,6 +295,35 @@ public class ApiService {
             if (response.statusCode() == 200) {
                 Type type = new TypeToken<PagedResult<Author>>() {}.getType();
                 PagedResult<Author> pagedResult = gson.fromJson(response.body(), type);
+                return ApiResult.success(pagedResult);
+            }
+
+            ApiError error = gson.fromJson(response.body(), ApiError.class);
+            return ApiResult.error(response.body().isBlank() ? "(no message)" : error.getMessage());
+        } catch (ConnectException e) {
+            return ApiResult.throwable(e);
+        } catch (Exception e) {
+            System.out.println(e.getClass().getName());
+            return ApiResult.error("Сетевая ошибка: " + e.getMessage());
+        }
+    }
+
+    public ApiResult<PagedResult<User>> getUsers(String token, PagedRequest pagedRequest) {
+        try {
+            String json = mapper.writeValueAsString(pagedRequest);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl + "/users"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + token)
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                Type type = new TypeToken<PagedResult<User>>() {}.getType();
+                PagedResult<User> pagedResult = gson.fromJson(response.body(), type);
                 return ApiResult.success(pagedResult);
             }
 

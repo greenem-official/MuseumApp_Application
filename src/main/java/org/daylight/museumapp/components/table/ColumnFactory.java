@@ -44,13 +44,23 @@ public class ColumnFactory<T> {
     private final Map<String, Button> sortButtons = new HashMap<>();
     private String currentSortedField = null; // not main source
 
-    public ColumnFactory(Class<T> type, Consumer<T> onOpenDetail, BiConsumer<String, Boolean> onSortChanged, Consumer<Pair<String, List<FilterRule<?>>>> onFilterChanged, boolean adminMode, Function<String, List<FilterRule<?>>> activeFilterGetter) {
+    private final Consumer<T> onCreate;
+    private final Consumer<T> onUpdate;
+    private final Consumer<T> onDelete;
+
+    public ColumnFactory(Class<T> type, Consumer<T> onOpenDetail, BiConsumer<String, Boolean> onSortChanged, Consumer<Pair<String, List<FilterRule<?>>>> onFilterChanged, boolean adminMode, Function<String, List<FilterRule<?>>> activeFilterGetter,
+                         Consumer<T> onCreate,
+                         Consumer<T> onUpdate,
+                         Consumer<T> onDelete) {
         this.type = type;
         this.onOpenDetail = onOpenDetail;
         this.onSortChanged = onSortChanged;
         this.onFilterChanged = onFilterChanged;
         this.activeFilterGetter = activeFilterGetter;
         this.adminMode = adminMode;
+        this.onCreate = onCreate;
+        this.onUpdate = onUpdate;
+        this.onDelete = onDelete;
     }
 
     public void buildColumnsInto(TableView<T> table) {
@@ -129,12 +139,18 @@ public class ColumnFactory<T> {
                     box.getChildren().addAll(edit, del);
                     edit.setOnAction(e -> {
                         T item = getTableView().getItems().get(getIndex());
-                        System.out.println("Edit " + item);
+                        new GenericEditDialog<>(type, item)
+                                .show()
+                                .ifPresent(onUpdate);
                     });
+
                     del.setOnAction(e -> {
                         T item = getTableView().getItems().get(getIndex());
-                        System.out.println("Delete " + item);
+//                        if (confirmDelete(item)) { // TODO
+                            onDelete.accept(item);
+//                        }
                     });
+
                 }
 
                 @Override

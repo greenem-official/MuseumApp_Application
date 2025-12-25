@@ -25,6 +25,8 @@ import org.daylight.museumapp.dto.filterrelated.SortRequest;
 import org.daylight.museumapp.dto.tables.Author;
 import org.daylight.museumapp.dto.tables.Collection;
 import org.daylight.museumapp.dto.tables.Hall;
+import org.daylight.museumapp.dto.tables.User;
+import org.daylight.museumapp.services.TablesService;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -61,14 +63,26 @@ public class GenericListDetailView<T> extends HBox {
 
     private PagedResult<T> lastPage;
 
+    private final Map<Class<?>, List<?>> referenceData = new HashMap<>();
+    private Function<T, CompletableFuture<ApiResult<Void>>> createHandler;
+    private Function<T, CompletableFuture<ApiResult<Void>>> updateHandler;
+    private Function<T, CompletableFuture<ApiResult<Void>>> deleteHandler;
+
     public GenericListDetailView(Class<T> type,
                                  Function<PagedRequest, CompletableFuture<ApiResult<PagedResult<T>>>> fetcher,
+                                 Function<T, CompletableFuture<ApiResult<Void>>> createHandler,
+                                 Function<T, CompletableFuture<ApiResult<Void>>> updateHandler,
+                                 Function<T, CompletableFuture<ApiResult<Void>>> deleteHandler,
                                  boolean adminMode, String titleName) {
         this.type = type;
         this.fetcher = fetcher;
         this.adminMode = adminMode;
         this.titleName = titleName;
         this.paginationBar = new PaginationBar(this::goToPage);
+
+        this.createHandler = createHandler;
+        this.updateHandler = updateHandler;
+        this.deleteHandler = deleteHandler;
 
         this.getStylesheets().addAll(SeparateStyles.tablesCss);
 
@@ -80,7 +94,10 @@ public class GenericListDetailView<T> extends HBox {
                 this::onSortChanged,
                 this::onFiltersChanged,
                 adminMode,
-                this::getActiveFiltersForField);
+                this::getActiveFiltersForField,
+                this::createItem,
+                this::updateItem,
+                this::deleteItem);
         cf.buildColumnsInto(table);
 
         refresh();
@@ -117,7 +134,9 @@ public class GenericListDetailView<T> extends HBox {
         if (adminMode) {
             Button addNewBtn = new Button("Добавить");
             addNewBtn.setOnMouseClicked(mouseEvent -> {
-//                showAddDialogue();
+                new GenericEditDialog<>(type, null)
+                        .show()
+                        .ifPresent(this::createItem);
             });
 
             leftPane.getChildren().addAll(addNewBtn);
@@ -283,9 +302,58 @@ public class GenericListDetailView<T> extends HBox {
         goToPage(0);
     }
 
-    public void setAdminMode(boolean admin) {
-//        this.adminMode = admin;
-        ColumnFactory<T> cf = new ColumnFactory<>(type, this::openDetail, this::onSortChanged, this::onFiltersChanged, admin, this::getActiveFiltersForField);
-        cf.buildColumnsInto(table);
+    private void createItem(T item) {
+        showLoading(true);
+        createHandler.apply(item).thenAccept(res -> {
+            Platform.runLater(() -> {
+                showLoading(false);
+                if (res.isSuccess()) {
+                    refresh();
+                } else {
+                    showError(res.getError());
+                }
+            });
+        });
     }
+
+    private void updateItem(T item) {
+        showLoading(true);
+        updateHandler.apply(item).thenAccept(res -> {
+            Platform.runLater(() -> {
+                showLoading(false);
+                if (res.isSuccess()) {
+                    refresh();
+                } else {
+                    showError(res.getError());
+                }
+            });
+        });
+    }
+
+    private void deleteItem(T item) {
+        showLoading(true);
+        deleteHandler.apply(item).thenAccept(res -> {
+            Platform.runLater(() -> {
+                showLoading(false);
+                if (res.isSuccess()) {
+                    refresh();
+                } else {
+                    showError(res.getError());
+                }
+            });
+        });
+    }
+
+//    private void loadReferenceData() {
+//        referenceData.put(Author.class, TablesService.getAuthors());
+//        referenceData.put(Collection.class, TablesService.getCollections());
+//        referenceData.put(Hall.class, TablesService.getAllHallsSync());
+//        referenceData.put(User.class, TablesService.getAllUsersSync());
+//    }
+
+//    public void setAdminMode(boolean admin) {
+////        this.adminMode = admin;
+//        ColumnFactory<T> cf = new ColumnFactory<>(type, this::openDetail, this::onSortChanged, this::onFiltersChanged, admin, this::getActiveFiltersForField);
+//        cf.buildColumnsInto(table);
+//    }
 }

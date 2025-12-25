@@ -25,11 +25,14 @@ public class ExhibitsPage {
     private void initializePage() {
         content = new StackPane();
 
-        Function<PagedRequest, CompletableFuture<ApiResult<PagedResult<Item>>>> fetcher = TablesService::getItems;
-
         boolean isAdmin = false;
         if(AuthService.getInstance().isAuthenticated()) isAdmin = AuthService.getInstance().getCurrentUser().getRole() == UserRole.ADMIN;
-        GenericListDetailView<Item> view = new GenericListDetailView<>(Item.class, fetcher, isAdmin, "Экспонаты");
+        GenericListDetailView<Item> view = new GenericListDetailView<>(Item.class,
+                TablesService::getItems,     // LIST
+                TablesService::createItem,   // CREATE
+                TablesService::updateItem,   // UPDATE
+                TablesService::deleteItem,   // DELETE
+                isAdmin, "Экспонаты");
 
         content.getChildren().addAll(view);
     }

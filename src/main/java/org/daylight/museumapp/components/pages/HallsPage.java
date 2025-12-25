@@ -23,11 +23,14 @@ public class HallsPage {
     private void initializePage() {
         content = new StackPane();
 
-        Function<PagedRequest, CompletableFuture<ApiResult<PagedResult<Hall>>>> fetcher = TablesService::getHalls;
-
         boolean isAdmin = false;
         if(AuthService.getInstance().isAuthenticated()) isAdmin = AuthService.getInstance().getCurrentUser().getRole() == UserRole.ADMIN;
-        GenericListDetailView<Hall> view = new GenericListDetailView<>(Hall.class, fetcher, isAdmin, "Залы");
+        GenericListDetailView<Hall> view = new GenericListDetailView<>(Hall.class,
+                TablesService::getHalls,     // LIST
+                TablesService::createHall,   // CREATE
+                TablesService::updateHall,   // UPDATE
+                TablesService::deleteHall,   // DELETE
+                isAdmin, "Залы");
 
         content.getChildren().addAll(view);
     }

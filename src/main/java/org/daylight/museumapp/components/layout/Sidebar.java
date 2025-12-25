@@ -74,8 +74,9 @@ public class Sidebar {
         Button hallsPageButton = createNavButton(new NavigationItem("Залы", "/halls", Icons.HALLS), null);
         Button authorsPageButton = createNavButton(new NavigationItem("Авторы", "/authors", Icons.AUTHORS), null);
         Button statysticsPageButton = createNavButton(new NavigationItem("Статистика", "/stats", Icons.STATS), null);
+        Button usersPageButton = createNavButton(new NavigationItem("Пользователи", "/users", Icons.USERS), null);
 
-        menu.getChildren().addAll(homePageButton, exhibitsPageButton, collectionsPageButton, hallsPageButton, authorsPageButton, statysticsPageButton);
+        menu.getChildren().addAll(homePageButton, exhibitsPageButton, collectionsPageButton, hallsPageButton, authorsPageButton, statysticsPageButton, usersPageButton);
         homePageButton.getStyleClass().add("nav-button-active");
 
         GlobalHooks.getInstance().sidebarOnAuthStateChange = () -> {
@@ -85,6 +86,7 @@ public class Sidebar {
             hallsPageButton.setVisible(authenticated);
             authorsPageButton.setVisible(authenticated);
             statysticsPageButton.setVisible(authenticated && AuthService.getInstance().getCurrentUser().getRole() == UserRole.ADMIN);
+            usersPageButton.setVisible(authenticated && AuthService.getInstance().getCurrentUser().getRole() == UserRole.ADMIN);
         };
 
         GlobalHooks.getInstance().sidebarOnAuthStateChange.run();

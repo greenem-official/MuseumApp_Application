@@ -2,21 +2,16 @@ package org.daylight.museumapp.components.pages;
 
 import javafx.scene.layout.StackPane;
 import org.daylight.museumapp.components.table.GenericListDetailView;
-import org.daylight.museumapp.dto.ApiResult;
-import org.daylight.museumapp.dto.PagedResult;
 import org.daylight.museumapp.dto.UserRole;
-import org.daylight.museumapp.dto.filterrelated.PagedRequest;
 import org.daylight.museumapp.dto.tables.Author;
+import org.daylight.museumapp.dto.tables.User;
 import org.daylight.museumapp.services.AuthService;
 import org.daylight.museumapp.services.TablesService;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
-
-public class AuthorsPage {
+public class UsersPage {
     private StackPane content;
 
-    public AuthorsPage() {
+    public UsersPage() {
         initializePage();
     }
 
@@ -25,12 +20,12 @@ public class AuthorsPage {
 
         boolean isAdmin = false;
         if(AuthService.getInstance().isAuthenticated()) isAdmin = AuthService.getInstance().getCurrentUser().getRole() == UserRole.ADMIN;
-        GenericListDetailView<Author> view = new GenericListDetailView<>(Author.class,
-                TablesService::getAuthors,     // LIST
-                TablesService::createAuthor,   // CREATE
-                TablesService::updateAuthor,   // UPDATE
-                TablesService::deleteAuthor,   // DELETE
-                isAdmin, "Авторы");
+        GenericListDetailView<User> view = new GenericListDetailView<>(User.class,
+                TablesService::getUsers,     // LIST
+                TablesService::createUser,   // CREATE
+                TablesService::updateUser,   // UPDATE
+                TablesService::deleteUser,   // DELETE
+                isAdmin, "Пользователи");
 
         content.getChildren().addAll(view);
     }
