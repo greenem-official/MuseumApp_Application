@@ -8,8 +8,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.control.ScrollPane;
+import org.daylight.museumapp.dto.tables.Author;
+import org.daylight.museumapp.dto.tables.Collection;
+import org.daylight.museumapp.dto.tables.Hall;
+import org.daylight.museumapp.dto.tables.User;
 
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 
 /**
  * Небольшой компонент для отображения сущности в detail area.
@@ -40,10 +45,12 @@ public class DetailPane<T> {
             String fname = prettyColumnName(f.getName());
             Object val = safeGetProperty(item, f);
 
+            if(val == null) System.out.println("Null on safeGetProperty " + f.getName());
+
             Label label = new Label(fname + ":");
             label.getStyleClass().add("museum-ld-field-label");
 
-            Text valueText = new Text(val == null ? "-" : String.valueOf(val));
+            Text valueText = new Text(val == null ? "-" : ColumnFactory.prettifyCellText(val));
             valueText.getStyleClass().add("museum-ld-muted");
 
             VBox block = new VBox(2, label, valueText);

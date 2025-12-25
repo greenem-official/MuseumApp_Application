@@ -24,7 +24,7 @@ public class FilterDialog {
         this.fieldName = fieldName;
     }
 
-    public List<FilterRule<?>> show() { // List<FilterRule<?>> previousFilters
+    public List<FilterRule<?>> show(List<FilterRule<?>> previousFilters) {
         Dialog<List<FilterRule<?>>> dlg = new Dialog<>();
         dlg.setTitle("Фильтр — " + prettyColumnName(fieldName));
         dlg.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.APPLY);

@@ -79,7 +79,8 @@ public class GenericListDetailView<T> extends HBox {
                 this::openDetail,
                 this::onSortChanged,
                 this::onFiltersChanged,
-                adminMode);
+                adminMode,
+                this::getActiveFiltersForField);
         cf.buildColumnsInto(table);
 
         refresh();
@@ -154,6 +155,10 @@ public class GenericListDetailView<T> extends HBox {
     private void onSortChanged(String field, boolean asc) {
         this.sort = new SortRequest(field, asc ? "asc" : "desc");
         goToPage(0);
+    }
+
+    private List<FilterRule<?>> getActiveFiltersForField(String field) {
+        return filterRules.getOrDefault(field, List.of());
     }
 
     private void onFiltersChanged(Pair<String, List<FilterRule<?>>> filters) {
@@ -267,7 +272,7 @@ public class GenericListDetailView<T> extends HBox {
 
     public void setAdminMode(boolean admin) {
 //        this.adminMode = admin;
-        ColumnFactory<T> cf = new ColumnFactory<>(type, this::openDetail, this::onSortChanged, this::onFiltersChanged, admin);
+        ColumnFactory<T> cf = new ColumnFactory<>(type, this::openDetail, this::onSortChanged, this::onFiltersChanged, admin, this::getActiveFiltersForField);
         cf.buildColumnsInto(table);
     }
 }

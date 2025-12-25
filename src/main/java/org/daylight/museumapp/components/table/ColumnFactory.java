@@ -16,13 +16,19 @@ import javafx.util.Callback;
 import javafx.util.Pair;
 import org.daylight.museumapp.components.annotations.ColumnMeta;
 import org.daylight.museumapp.dto.filterrelated.FilterRule;
+import org.daylight.museumapp.dto.tables.Author;
+import org.daylight.museumapp.dto.tables.Collection;
+import org.daylight.museumapp.dto.tables.Hall;
+import org.daylight.museumapp.dto.tables.User;
 import org.daylight.museumapp.util.Icons;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Создаёт колонки для TableView<T> на основе полей класса.
@@ -33,15 +39,17 @@ public class ColumnFactory<T> {
     private final Consumer<T> onOpenDetail;
     private final BiConsumer<String, Boolean> onSortChanged;
     private final Consumer<Pair<String, List<FilterRule<?>>>> onFilterChanged;
+    private final Function<String, List<FilterRule<?>>> activeFilterGetter;
     private final boolean adminMode;
     private final Map<String, Button> sortButtons = new HashMap<>();
     private String currentSortedField = null; // not main source
 
-    public ColumnFactory(Class<T> type, Consumer<T> onOpenDetail, BiConsumer<String, Boolean> onSortChanged, Consumer<Pair<String, List<FilterRule<?>>>> onFilterChanged, boolean adminMode) {
+    public ColumnFactory(Class<T> type, Consumer<T> onOpenDetail, BiConsumer<String, Boolean> onSortChanged, Consumer<Pair<String, List<FilterRule<?>>>> onFilterChanged, boolean adminMode, Function<String, List<FilterRule<?>>> activeFilterGetter) {
         this.type = type;
         this.onOpenDetail = onOpenDetail;
         this.onSortChanged = onSortChanged;
         this.onFilterChanged = onFilterChanged;
+        this.activeFilterGetter = activeFilterGetter;
         this.adminMode = adminMode;
     }
 
@@ -214,7 +222,7 @@ public class ColumnFactory<T> {
 
     private void showFilterDialog(Field field, String fieldName) {
         FilterDialog dlg = new FilterDialog(field, fieldName);
-        List<FilterRule<?>> result = dlg.show();
+        List<FilterRule<?>> result = dlg.show(activeFilterGetter.apply(fieldName));
 
         if (result != null) {
             // тут уже лежат готовые фильтры со значениями
@@ -249,6 +257,13 @@ public class ColumnFactory<T> {
     private String readableValue(Object v) {
         if (v == null) return null;
         if (v instanceof String || v instanceof Number || v instanceof Boolean || v instanceof Character) return String.valueOf(v);
+
+        if(v instanceof Collection collection) return collection.getName();
+        if(v instanceof Author author) return author.getName();
+        if(v instanceof Hall hall) return hall.getName();
+        if(v instanceof User user) return user.getUsername();
+        if(v instanceof LocalDate localDate) return localDate.toString();
+
         try {
             Method m = v.getClass().getMethod("getName");
             Object name = m.invoke(v);
@@ -266,9 +281,23 @@ public class ColumnFactory<T> {
 
     private String formatCellValue(Object item) {
         if (item == null) return "";
+        if(item instanceof Collection collection) return collection.getName();
+        if(item instanceof Author author) return author.getName();
+        if(item instanceof Hall hall) return hall.getName();
+        if(item instanceof User user) return user.getUsername();
+        if(item instanceof LocalDate localDate) return localDate.toString();
         String s = String.valueOf(item);
         if (s.length() > 120) return s.substring(0, 117) + "...";
         return s;
+    }
+
+    public static String prettifyCellText(Object val) {
+        if(val instanceof Collection collection) return collection.getName();
+        if(val instanceof Author author) return author.getName();
+        if(val instanceof Hall hall) return hall.getName();
+        if(val instanceof User user) return user.getUsername();
+        if(val instanceof LocalDate localDate) return localDate.toString();
+        return String.valueOf(val);
     }
 
     private String prettyColumnName(String raw) {
