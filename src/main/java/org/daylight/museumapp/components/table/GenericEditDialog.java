@@ -86,9 +86,21 @@ public class GenericEditDialog<T> {
             control = dp;
 
         } else {
-            // связи (Author, Collection, Hall, User)
             ComboBox<Object> cb = new ComboBox<>();
-            cb.getItems().add(getValue(field));
+            Object current = getValue(field);
+
+            if (field.getType().isEnum()) {
+                // Если поле enum — добавляем все значения enum
+                Object[] enumConstants = field.getType().getEnumConstants();
+                cb.getItems().addAll(enumConstants);
+            } else if (current != null) {
+                // Для обычных объектов просто текущий объект
+                cb.getItems().add(current);
+            }
+
+            // Устанавливаем выбранное значение
+            if (current != null) cb.setValue(current);
+
             control = cb;
         }
 
